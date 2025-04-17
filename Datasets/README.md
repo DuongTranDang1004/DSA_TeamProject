@@ -1,1 +1,3 @@
-- Not finished with SudokuLargeGrids, dont touch the files
+- Finished with Sudoku Large Grids 16x16/25x25 java file, not using a CSV file.
+- Normal Sudoku 9x9 & Very Hard Sudoku using CSV files.
+- 2D arrays. 
