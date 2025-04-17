@@ -3,8 +3,8 @@ public class Main {
     // Performance test for Backtracking Solver
     public static void solveUsingBackTracking(int[][] sudoku) {
         long startTime = System.currentTimeMillis();
-        BackTrackingSolver backTrackingSolver = new BackTrackingSolver(sudoku);
-        backTrackingSolver.solve();
+        BackTrackingSolver backTrackingSolver = new BackTrackingSolver();
+        backTrackingSolver.solve(sudoku);
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
         System.out.println("=====================================");
@@ -16,8 +16,8 @@ public class Main {
     // Performance test for Constraint Propagation Solver
     public static void solveUsingConstraintPropagation(int[][] sudoku) {
         long startTime = System.currentTimeMillis();
-        ConstraintPropagationSolver constraintPropagationSolver = new ConstraintPropagationSolver(sudoku);
-        constraintPropagationSolver.solve();
+        ConstraintPropagationSolver constraintPropagationSolver = new ConstraintPropagationSolver();
+        constraintPropagationSolver.solve(sudoku);
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
         System.out.println("=====================================");

@@ -1,23 +1,17 @@
 import java.util.*;
 
 public class ConstraintPropagationSolver {
-    private int[][] sudoku;
-    private Map<Integer, Set<Integer>> rowConstraints = new HashMap<>();
-    private Map<Integer, Set<Integer>> colConstraints = new HashMap<>();
-    private Map<Integer, Set<Integer>> boxConstraints = new HashMap<>();
-    private Map<String, Set<Integer>> domain = new HashMap<>();
+    public int[][] sudoku;
+    public Map<Integer, Set<Integer>> rowConstraints = new HashMap<>();
+    public Map<Integer, Set<Integer>> colConstraints = new HashMap<>();
+    public Map<Integer, Set<Integer>> boxConstraints = new HashMap<>();
+    public Map<String, Set<Integer>> domain = new HashMap<>();
 
-    public ConstraintPropagationSolver(int[][] board) {
-        this.sudoku = board;
-        for (int i = 0; i < 9; i++) {
-            rowConstraints.put(i, new HashSet<>());
-            colConstraints.put(i, new HashSet<>());
-            boxConstraints.put(i, new HashSet<>());
-        }
-        initializeConstraintsAndDomain();
+    public ConstraintPropagationSolver() {
+
     }
 
-    private void initializeConstraintsAndDomain() {
+    public void initializeConstraintsAndDomain() {
         for (int row = 0; row < 9; row++) {
             for (int col = 0; col < 9; col++) {
                 int value = sudoku[row][col];
@@ -46,11 +40,24 @@ public class ConstraintPropagationSolver {
         }
     }
 
-    public boolean solve() {
-        return backtrack(new HashMap<>(domain));
+    public int[][]  solve(int[][] sudoku) {
+        this.sudoku = sudoku;
+        for (int i = 0; i < 9; i++) {
+            rowConstraints.put(i, new HashSet<>());
+            colConstraints.put(i, new HashSet<>());
+            boxConstraints.put(i, new HashSet<>());
+        }
+        initializeConstraintsAndDomain();
+        if (backtrack(new HashMap<>(domain))){
+            printBoard();
+            return sudoku;
+        } else {
+            System.out.println("No Solution Found");
+            return null;
+        }
     }
 
-    private boolean backtrack(Map<String, Set<Integer>> currentDomain) {
+    public boolean backtrack(Map<String, Set<Integer>> currentDomain) {
         if (currentDomain.isEmpty()) return true;
         for (Set<Integer> values : currentDomain.values()) {
             if (values.isEmpty()) return false;
@@ -88,7 +95,8 @@ public class ConstraintPropagationSolver {
         return false;
     }
 
-    private void propagate(int row, int col, int value, Map<String, Set<Integer>> dom) {
+    public void propagate(int row, int col, int value,
+                      Map<String, Set<Integer>> dom) {
         for (int i = 0; i < 9; i++) {
             dom.computeIfPresent(row + "," + i, (k, v) -> { v.remove(value); return v; });
             dom.computeIfPresent(i + "," + col, (k, v) -> { v.remove(value); return v; });
@@ -102,14 +110,14 @@ public class ConstraintPropagationSolver {
         }
     }
 
-    private String selectCellWithMRV(Map<String, Set<Integer>> domainMap) {
+    public String selectCellWithMRV(Map<String, Set<Integer>> domainMap) {
         return domainMap.entrySet().stream()
                 .min(Comparator.comparingInt(e -> e.getValue().size()))
                 .map(Map.Entry::getKey)
                 .orElseThrow();
     }
 
-    private Map<String, Set<Integer>> deepCopy(Map<String, Set<Integer>> original) {
+    public Map<String, Set<Integer>> deepCopy(Map<String, Set<Integer>> original) {
         Map<String, Set<Integer>> copy = new HashMap<>();
         for (Map.Entry<String, Set<Integer>> entry : original.entrySet()) {
             copy.put(entry.getKey(), new HashSet<>(entry.getValue()));
@@ -117,14 +125,16 @@ public class ConstraintPropagationSolver {
         return copy;
     }
 
-    private int getBoxIndex(int row, int col) {
+    public int getBoxIndex(int row, int col) {
         return (row / 3) * 3 + (col / 3);
     }
 
     public void printBoard() {
-        for (int[] row : sudoku) {
-            for (int num : row) {
-                System.out.print(num + " ");
+        for (int i = 0; i < 9; i++) {
+            if (i % 3 == 0 && i != 0) System.out.println("------+-------+------");
+            for (int j = 0; j < 9; j++) {
+                if (j % 3 == 0 && j != 0) System.out.print("| ");
+                System.out.print(sudoku[i][j] == 0 ? ". " : sudoku[i][j] + " ");
             }
             System.out.println();
         }

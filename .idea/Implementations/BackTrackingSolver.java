@@ -10,7 +10,7 @@ public class BackTrackingSolver {
     public Map<Integer, Set<Integer>> boxConstraints = new HashMap<>();
     public Map<String, Set<Integer>> domain;
 
-    private void findInitialRowConstraint(){
+    void findInitialRowConstraint(){
         for (int row = 0; row < 9; row++){
             Set<Integer> rowConstraint = new HashSet<>();
             for (int col = 0; col < 9; col++){
@@ -22,7 +22,7 @@ public class BackTrackingSolver {
         }
     }
 
-    private void findInitialColConstraint(){
+    public void findInitialColConstraint(){
         for (int col = 0; col < 9; col++){
             Set<Integer> colConstraint = new HashSet<>();
             for (int row = 0; row < 9; row++){
@@ -35,7 +35,7 @@ public class BackTrackingSolver {
         }
     }
 
-    private void findInitialBoxConstraint() {
+    public void findInitialBoxConstraint() {
         for (int row = 0; row < 9; row += 3) {
             for (int col = 0; col < 9; col += 3) {
                 Set<Integer> boxConstraint = new HashSet<>();
@@ -53,11 +53,11 @@ public class BackTrackingSolver {
         }
     }
 
-    private static String cellKey(int row, int col) {
+    public static String cellKey(int row, int col) {
         return row + "," + col;
     }
 
-    private static int[] extractRowAndCol(String cellKey) {
+    public static int[] extractRowAndCol(String cellKey) {
         String[] parts = cellKey.split(",");
         int row = Integer.parseInt(parts[0]);
         int col = Integer.parseInt(parts[1]);
@@ -89,13 +89,10 @@ public class BackTrackingSolver {
         return domain;
     }
 
-    public BackTrackingSolver(int[][] sudoku) {
-        this.sudoku = sudoku;
-        findInitialRowConstraint();
-        findInitialColConstraint();
-        findInitialBoxConstraint();
+    public BackTrackingSolver() {
+
     }
-    private boolean guessingCell(int row, int col) {
+    public boolean guessingCell(int row, int col) {
         if (row == 9) return true; // Finished all rows
 
         int nextRow = (col == 8) ? row + 1 : row;
@@ -133,14 +130,31 @@ public class BackTrackingSolver {
         return false;
     }
 
-    public boolean solve(){
-        boolean solvable = guessingCell(0, 0);
-        for (int i = 0; i < sudoku.length; i++) {
-            for (int j = 0; j < sudoku[i].length; j++) {
-                System.out.print(sudoku[i][j] + " ");
+    public void printBoard() {
+        for (int i = 0; i < 9; i++) {
+            if (i % 3 == 0 && i != 0) System.out.println("------+-------+------");
+            for (int j = 0; j < 9; j++) {
+                if (j % 3 == 0 && j != 0) System.out.print("| ");
+                System.out.print(sudoku[i][j] == 0 ? ". " : sudoku[i][j] + " ");
             }
-            System.out.println(); // Move to the next line after each row
+            System.out.println();
         }
-        return solvable;
     }
+
+    public int[][] solve(int[][] sudoku){
+        this.sudoku = sudoku;
+        findInitialRowConstraint();
+        findInitialColConstraint();
+        findInitialBoxConstraint();
+
+        boolean solvable = guessingCell(0, 0);
+        if (solvable){
+            printBoard();
+            return sudoku;
+        } else {
+            System.out.println("No solution found");
+            return null;
+        }
+    }
+
 }
