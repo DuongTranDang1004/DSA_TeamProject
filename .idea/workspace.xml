@@ -4,7 +4,34 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="036a3fec-9d83-4ed1-a6eb-2074e34e876f" name="Changes" comment="Commit" />
+    <list default="true" id="036a3fec-9d83-4ed1-a6eb-2074e34e876f" name="Changes" comment="Commit">
+      <change beforePath="$PROJECT_DIR$/.idea/Implementations/BackTrackingSolver.java" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Implementations/BackTrackingSolver.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Implementations/ConstraintPropagationSolver.java" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Implementations/ConstraintPropagationSolver.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Implementations/DLXSolver.java" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Implementations/DLXSolver.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Implementations/DLXSudokuTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Implementations/DPLLSATSolver.java" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Implementations/DPLLSATSolver.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Implementations/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Implementations/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Implementations/SudokuCnfEncoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Implementations/SudokuCnfEncoder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/BackTrackingSolver.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/BackTrackingSolver.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/ConstraintPropagationSolver.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/ConstraintPropagationSolver.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/DLXSolver$ColumnHeader.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/DLXSolver$ColumnHeader.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/DLXSolver$DLXHeader.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/DLXSolver$DLXHeader.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/DLXSolver$DLXNode.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/DLXSolver$DLXNode.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/DLXSolver.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/DLXSolver.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/DLXSudokuTest.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/DPLLSATSolver.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/DPLLSATSolver.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/Main.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/SudokuCnfEncoder.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/SudokuCnfEncoder.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/BacktrackingTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/BacktrackingTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/ConstraintPropagationTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/ConstraintPropagationTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/DLXSolverTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/DLXSolverTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/SATSolverTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/SATSolverTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/BacktrackingTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/test/BacktrackingTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/ConstraintPropagationTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/test/ConstraintPropagationTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/DLXSolverTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/test/DLXSolverTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/SATSolverTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/test/SATSolverTest.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -43,10 +70,12 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Application.Main.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SONARLINT_PRECOMMIT_ANALYSIS": "true",
     "git-widget-placeholder": "Trung__Branch",
     "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/Trung/IdeaProjects/DSA_TeamProject_Main",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -58,6 +87,20 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RunManager">
+    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Main" />
+      <module name="DSA_TeamProject_Main" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.Main" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -75,7 +118,14 @@
       <option name="presentableId" value="Default" />
       <updated>1744889676548</updated>
       <workItem from="1744889677617" duration="2169000" />
-      <workItem from="1744894705794" duration="191000" />
+      <workItem from="1744894705794" duration="396000" />
+      <workItem from="1744923097431" duration="1787000" />
+      <workItem from="1744924942068" duration="303000" />
+      <workItem from="1744925265211" duration="124000" />
+      <workItem from="1744925415262" duration="684000" />
+      <workItem from="1744929564802" duration="745000" />
+      <workItem from="1744944257991" duration="2577000" />
+      <workItem from="1744946899759" duration="15000" />
     </task>
     <task id="LOCAL-00001" summary="Commit">
       <option name="closed" value="true" />
@@ -85,7 +135,15 @@
       <option name="project" value="LOCAL" />
       <updated>1744894775507</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Commit">
+      <option name="closed" value="true" />
+      <created>1744897683008</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1744897683008</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

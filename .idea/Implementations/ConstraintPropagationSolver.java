@@ -1,36 +1,42 @@
 import java.util.*;
 
 public class ConstraintPropagationSolver {
+    private final int N;
+
     public int[][] sudoku;
     public Map<Integer, Set<Integer>> rowConstraints = new HashMap<>();
     public Map<Integer, Set<Integer>> colConstraints = new HashMap<>();
     public Map<Integer, Set<Integer>> boxConstraints = new HashMap<>();
     public Map<String, Set<Integer>> domain = new HashMap<>();
 
-    public ConstraintPropagationSolver() {
-
+    public ConstraintPropagationSolver(int N) {
+        if (Math.sqrt(N) != (int) Math.sqrt(N)) {
+            throw new IllegalArgumentException("N must be a perfect square.");
+        }
+        this.N = N;
     }
 
     public void initializeConstraintsAndDomain() {
-        for (int row = 0; row < 9; row++) {
-            for (int col = 0; col < 9; col++) {
+        int boxSize = (int) Math.sqrt(N);
+        for (int row = 0; row < N; row++) {
+            for (int col = 0; col < N; col++) {
                 int value = sudoku[row][col];
                 if (value != 0) {
                     rowConstraints.get(row).add(value);
                     colConstraints.get(col).add(value);
-                    boxConstraints.get(getBoxIndex(row, col)).add(value);
+                    boxConstraints.get(getBoxIndex(row, col, boxSize)).add(value);
                 }
             }
         }
 
-        for (int row = 0; row < 9; row++) {
-            for (int col = 0; col < 9; col++) {
+        for (int row = 0; row < N; row++) {
+            for (int col = 0; col < N; col++) {
                 if (sudoku[row][col] == 0) {
                     Set<Integer> possible = new HashSet<>();
-                    for (int i = 1; i <= 9; i++) {
+                    for (int i = 1; i <= N; i++) {
                         if (!rowConstraints.get(row).contains(i)
                                 && !colConstraints.get(col).contains(i)
-                                && !boxConstraints.get(getBoxIndex(row, col)).contains(i)) {
+                                && !boxConstraints.get(getBoxIndex(row, col, boxSize)).contains(i)) {
                             possible.add(i);
                         }
                     }
@@ -40,15 +46,22 @@ public class ConstraintPropagationSolver {
         }
     }
 
-    public int[][]  solve(int[][] sudoku) {
+    public int[][] solve(int[][] sudoku) {
+        if (!isValidBoard(sudoku)) {
+            throw new IllegalArgumentException("Board must be " + N + "x" + N + " and contain values from 0 to " + N);
+        }
+
         this.sudoku = sudoku;
-        for (int i = 0; i < 9; i++) {
+
+        for (int i = 0; i < N; i++) {
             rowConstraints.put(i, new HashSet<>());
             colConstraints.put(i, new HashSet<>());
             boxConstraints.put(i, new HashSet<>());
         }
+
         initializeConstraintsAndDomain();
-        if (backtrack(new HashMap<>(domain))){
+
+        if (backtrack(new HashMap<>(domain))) {
             printBoard();
             return sudoku;
         } else {
@@ -58,7 +71,10 @@ public class ConstraintPropagationSolver {
     }
 
     public boolean backtrack(Map<String, Set<Integer>> currentDomain) {
+        int boxSize = (int) Math.sqrt(N);
+
         if (currentDomain.isEmpty()) return true;
+
         for (Set<Integer> values : currentDomain.values()) {
             if (values.isEmpty()) return false;
         }
@@ -71,40 +87,41 @@ public class ConstraintPropagationSolver {
         for (int value : new HashSet<>(currentDomain.get(cell))) {
             if (rowConstraints.get(row).contains(value)
                     || colConstraints.get(col).contains(value)
-                    || boxConstraints.get(getBoxIndex(row, col)).contains(value)) {
+                    || boxConstraints.get(getBoxIndex(row, col, boxSize)).contains(value)) {
                 continue;
             }
 
             sudoku[row][col] = value;
             rowConstraints.get(row).add(value);
             colConstraints.get(col).add(value);
-            boxConstraints.get(getBoxIndex(row, col)).add(value);
+            boxConstraints.get(getBoxIndex(row, col, boxSize)).add(value);
 
             Map<String, Set<Integer>> nextDomain = deepCopy(currentDomain);
             nextDomain.remove(cell);
-            propagate(row, col, value, nextDomain);
+            propagate(row, col, value, nextDomain, boxSize);
 
             if (backtrack(nextDomain)) return true;
 
             sudoku[row][col] = 0;
             rowConstraints.get(row).remove(value);
             colConstraints.get(col).remove(value);
-            boxConstraints.get(getBoxIndex(row, col)).remove(value);
+            boxConstraints.get(getBoxIndex(row, col, boxSize)).remove(value);
         }
 
         return false;
     }
 
-    public void propagate(int row, int col, int value,
-                      Map<String, Set<Integer>> dom) {
-        for (int i = 0; i < 9; i++) {
+    public void propagate(int row, int col, int value, Map<String, Set<Integer>> dom, int boxSize) {
+        for (int i = 0; i < N; i++) {
             dom.computeIfPresent(row + "," + i, (k, v) -> { v.remove(value); return v; });
             dom.computeIfPresent(i + "," + col, (k, v) -> { v.remove(value); return v; });
         }
 
-        int startRow = (row / 3) * 3, startCol = (col / 3) * 3;
-        for (int r = startRow; r < startRow + 3; r++) {
-            for (int c = startCol; c < startCol + 3; c++) {
+        int startRow = (row / boxSize) * boxSize;
+        int startCol = (col / boxSize) * boxSize;
+
+        for (int r = startRow; r < startRow + boxSize; r++) {
+            for (int c = startCol; c < startCol + boxSize; c++) {
                 dom.computeIfPresent(r + "," + c, (k, v) -> { v.remove(value); return v; });
             }
         }
@@ -125,18 +142,32 @@ public class ConstraintPropagationSolver {
         return copy;
     }
 
-    public int getBoxIndex(int row, int col) {
-        return (row / 3) * 3 + (col / 3);
+    public int getBoxIndex(int row, int col, int boxSize) {
+        return (row / boxSize) * boxSize + (col / boxSize);
     }
 
     public void printBoard() {
-        for (int i = 0; i < 9; i++) {
-            if (i % 3 == 0 && i != 0) System.out.println("------+-------+------");
-            for (int j = 0; j < 9; j++) {
-                if (j % 3 == 0 && j != 0) System.out.print("| ");
+        int boxSize = (int) Math.sqrt(N);
+        for (int i = 0; i < N; i++) {
+            if (i % boxSize == 0 && i != 0) {
+                System.out.println("-".repeat(N * 2 + boxSize - 1));
+            }
+            for (int j = 0; j < N; j++) {
+                if (j % boxSize == 0 && j != 0) System.out.print("| ");
                 System.out.print(sudoku[i][j] == 0 ? ". " : sudoku[i][j] + " ");
             }
             System.out.println();
         }
+    }
+
+    private boolean isValidBoard(int[][] board) {
+        if (board == null || board.length != N) return false;
+        for (int[] row : board) {
+            if (row == null || row.length != N) return false;
+            for (int val : row) {
+                if (val < 0 || val > N) return false;
+            }
+        }
+        return true;
     }
 }

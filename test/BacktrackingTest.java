@@ -1,18 +1,19 @@
 import org.junit.jupiter.api.Test;
-
 import java.util.Map;
 import java.util.Set;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BacktrackingTest {
+
+    private static final int N = 9;
+
     @Test
     void testFindInitialRowConstraint() {
-        int[][] board = new int[9][9];
+        int[][] board = new int[N][N];
         board[0][0] = 5;
-        BackTrackingSolver solver = new BackTrackingSolver();
-        solver.sudoku = board;
 
+        BackTrackingSolver solver = new BackTrackingSolver(N);
+        solver.sudoku = board;
         solver.findInitialRowConstraint();
 
         assertTrue(solver.rowConstraints.get(0).contains(5));
@@ -21,11 +22,11 @@ public class BacktrackingTest {
 
     @Test
     void testFindInitialColConstraint() {
-        int[][] board = new int[9][9];
+        int[][] board = new int[N][N];
         board[0][1] = 4;
-        BackTrackingSolver solver = new BackTrackingSolver();
-        solver.sudoku = board;
 
+        BackTrackingSolver solver = new BackTrackingSolver(N);
+        solver.sudoku = board;
         solver.findInitialColConstraint();
 
         assertTrue(solver.colConstraints.get(1).contains(4));
@@ -34,13 +35,13 @@ public class BacktrackingTest {
 
     @Test
     void testFindInitialBoxConstraint() {
-        int[][] board = new int[9][9];
+        int[][] board = new int[N][N];
         board[1][1] = 9;  // box 0
         board[4][4] = 6;  // box 4
         board[8][8] = 3;  // box 8
-        BackTrackingSolver solver = new BackTrackingSolver();
-        solver.sudoku = board;
 
+        BackTrackingSolver solver = new BackTrackingSolver(N);
+        solver.sudoku = board;
         solver.findInitialBoxConstraint();
 
         assertTrue(solver.boxConstraints.get(0).contains(9));
@@ -50,20 +51,21 @@ public class BacktrackingTest {
 
     @Test
     void testInitializeDomainFromConstraints() {
-        int[][] board = new int[9][9];
+        int[][] board = new int[N][N];
         board[0][0] = 1;
         board[0][1] = 2;
         board[1][0] = 3;
         board[1][1] = 4;
-        BackTrackingSolver solver = new BackTrackingSolver();
+
+        BackTrackingSolver solver = new BackTrackingSolver(N);
         solver.sudoku = board;
         solver.findInitialRowConstraint();
         solver.findInitialColConstraint();
         solver.findInitialBoxConstraint();
 
         Map<String, Set<Integer>> domain = solver.initializeDomainFromConstraints();
-
         Set<Integer> domainSet = domain.get("0,2");
+
         assertNotNull(domainSet);
         assertFalse(domainSet.contains(1));
         assertFalse(domainSet.contains(2));
@@ -80,5 +82,4 @@ public class BacktrackingTest {
         assertEquals(4, rc[0]);
         assertEquals(7, rc[1]);
     }
-
 }
