@@ -73,11 +73,18 @@ public class DLXSudokuTest {
 
     // New test to solve the Sudoku using DLX and check the result
     public static void testSolveWithDLX() {
-        int[][] board = new int[9][9]; // empty board
-        // Add some preset values to the board (optional for a real test case)
-        board[0][0] = 5;
-        board[1][1] = 3;
-        board[7][0] = 3;
+        int[][] board = {
+            {0, 0, 7, 0, 0, 6, 0, 9, 0},  // Row 1
+            {0, 0, 0, 0, 0, 0, 2, 0, 0},  // Row 2
+            {0, 0, 5, 0, 0, 9, 0, 0, 0},  // Row 3
+            {3, 2, 0, 0, 0, 0, 0, 0, 0},  // Row 4
+            {0, 0, 1, 0, 9, 0, 0, 0, 8},  // Row 5
+            {0, 0, 0, 2, 0, 8, 3, 0, 7},  // Row 6
+            {0, 1, 0, 4, 6, 0, 7, 0, 0},  // Row 7
+            {0, 8, 0, 0, 0, 0, 0, 3, 0},  // Row 8
+            {0, 0, 0, 0, 7, 0, 0, 0, 6}   // Row 9
+
+        };
         // Add more initial values as needed for testing
 
         // Solve the Sudoku using DLX
