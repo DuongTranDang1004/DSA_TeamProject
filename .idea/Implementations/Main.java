@@ -55,11 +55,11 @@ public class Main {
 
     public static void main(String[] args) {
         // Try to load the puzzles from the CSV using the loader utility.
-        List<int[][]> puzzles = NormalSudoku9x9.loadPuzzles("very_hard.csv", 9);
+        List<int[][]> puzzles = Sudoku9x9.loadPuzzles("very_hard.csv", 9); //Modify the CSV file path to run different datasets 
         int[][] sudoku;
         
         if (!puzzles.isEmpty()) {
-            sudoku = puzzles.get(2); // Use the first loaded puzzle
+            sudoku = puzzles.get(0); // Use the first loaded puzzle, modify the number to run different puzzles
         } else {
             // Fallback to a default hardcoded puzzle for safety.
             sudoku = new int[][] {
