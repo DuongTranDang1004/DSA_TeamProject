@@ -1,3 +1,5 @@
+import java.util.List;
+
 public class Main {
 
     // Performance test for Backtracking Solver
@@ -52,18 +54,26 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        // Example Sudoku puzzle
-        int[][] sudoku = {
-            {5, 3, 0, 0, 7, 0, 0, 0, 0},
-            {6, 0, 0, 1, 9, 5, 0, 0, 0},
-            {0, 9, 8, 0, 0, 0, 0, 6, 0},
-            {8, 0, 0, 0, 6, 0, 0, 0, 3},
-            {4, 0, 0, 8, 0, 3, 0, 0, 1},
-            {7, 0, 0, 0, 2, 0, 0, 0, 6},
-            {0, 6, 0, 0, 0, 0, 2, 8, 0},
-            {0, 0, 0, 4, 1, 9, 0, 0, 5},
-            {0, 0, 0, 0, 8, 0, 0, 7, 9}
-        };
+        // Try to load the puzzles from the CSV using the loader utility.
+        List<int[][]> puzzles = NormalSudoku9x9.loadPuzzles("very_hard.csv", 9);
+        int[][] sudoku;
+        
+        if (!puzzles.isEmpty()) {
+            sudoku = puzzles.get(2); // Use the first loaded puzzle
+        } else {
+            // Fallback to a default hardcoded puzzle for safety.
+            sudoku = new int[][] {
+                {5, 3, 0, 0, 7, 0, 0, 0, 0},
+                {6, 0, 0, 1, 9, 5, 0, 0, 0},
+                {0, 9, 8, 0, 0, 0, 0, 6, 0},
+                {8, 0, 0, 0, 6, 0, 0, 0, 3},
+                {4, 0, 0, 8, 0, 3, 0, 0, 1},
+                {7, 0, 0, 0, 2, 0, 0, 0, 6},
+                {0, 6, 0, 0, 0, 0, 2, 8, 0},
+                {0, 0, 0, 4, 1, 9, 0, 0, 5},
+                {0, 0, 0, 0, 8, 0, 0, 7, 9}
+            };
+        }
 
         // Running all solvers and measuring their performance
         System.out.println("=====================================");
