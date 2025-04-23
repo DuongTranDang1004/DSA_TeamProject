@@ -26,19 +26,20 @@ public class Main {
         int[][] inputCopy = cloneBoard(sudoku);
         String originalString = boardToCSVString(inputCopy);
         long startTime = System.currentTimeMillis();
-        ConstraintPropagationSolver solver = new ConstraintPropagationSolver(sudoku);
-        boolean solved = solver.solve();
+        ConstraintPropagationSolver solver = new ConstraintPropagationSolver(9);
+        int[][] solvedBoard = solver.solve(inputCopy);
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
 
         System.out.println("=====================================");
         System.out.println("Constraint Propagation Solver:");
         System.out.println("Elapsed time: " + elapsedTime + "ms");
-        if (solved) printBoard(sudoku);
+        if (solvedBoard != null) printBoard(solvedBoard);
+        else System.out.println("No solution found using Constraint Propagation.");
         System.out.println("=====================================");
 
-        String solutionString = solved ? boardToCSVString(sudoku) : "";
-        writer.write(String.format("%s,%s,%d,%s,%s,%s\n", puzzleName, "ConstraintPropagation", elapsedTime, solved ? "Yes" : "No", originalString, solutionString));
+        String solutionString = solvedBoard != null ? boardToCSVString(solvedBoard) : "";
+        writer.write(String.format("%s,%s,%d,%s,%s,%s\n", puzzleName, "ConstraintPropagation", elapsedTime, solvedBoard != null ? "Yes" : "No", originalString, solutionString));
     }
 
     public static void solveUsingDPLLSAT(int[][] sudoku, String puzzleName, FileWriter writer) throws IOException {

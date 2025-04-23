@@ -111,7 +111,7 @@ public class BackTrackingSolver {
         Set<Integer> boxSet = boxConstraints.get(currentBox);
 
         for (int i = 1; i <= 9; i++) {
-            if (!rowSet.contains(i) && !colSet.contains(i) && !boxSet.contains(i)) {
+            if (!rowSet.contains    (i) && !colSet.contains(i) && !boxSet.contains(i)) {
                 // Tentatively place number
                 sudoku[row][col] = i;
                 rowSet.add(i);
