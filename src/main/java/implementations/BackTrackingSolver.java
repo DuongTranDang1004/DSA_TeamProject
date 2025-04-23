@@ -1,3 +1,5 @@
+package implementations;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -135,12 +137,12 @@ public class BackTrackingSolver {
 
     public boolean solve(){
         boolean solvable = guessingCell(0, 0);
-        for (int i = 0; i < sudoku.length; i++) {
-            for (int j = 0; j < sudoku[i].length; j++) {
-                System.out.print(sudoku[i][j] + " ");
-            }
-            System.out.println(); // Move to the next line after each row
-        }
+        // for (int i = 0; i < sudoku.length; i++) {
+        //     for (int j = 0; j < sudoku[i].length; j++) {
+        //         System.out.print(sudoku[i][j] + " ");
+        //     }
+        //     System.out.println(); // Move to the next line after each row
+        // }
         return solvable;
     }
 }

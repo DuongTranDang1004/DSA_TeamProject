@@ -1,3 +1,5 @@
+package implementations;
+
 import java.util.*;
 
 public class DLXSolver {
@@ -111,7 +113,7 @@ public class DLXSolver {
         }
 
         int[][] solvedSudoku = search(dlx.head, solution);
-        printBoard(solvedSudoku);
+        // printBoard(solvedSudoku);
     }
 
     public static void cover(ColumnHeader column) {

@@ -15,13 +15,14 @@
     </properties>
 
     <build>
-        <sourceDirectory>src/main/Implementations</sourceDirectory>
+        <sourceDirectory>src/main/java</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.10.1</version>
                 <configuration>
+                    <!-- <mainClass>implementations.Main</mainClass> -->
                     <source>23</source>
                     <target>23</target>
                 </configuration>

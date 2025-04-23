@@ -1,3 +1,5 @@
+package implementations;
+
 import java.util.*;
 
 public class ConstraintPropagationSolver {
@@ -62,7 +64,7 @@ public class ConstraintPropagationSolver {
         initializeConstraintsAndDomain();
 
         if (backtrack(new HashMap<>(domain))) {
-            printBoard();
+            // printBoard();
             return sudoku;
         } else {
             System.out.println("No Solution Found");

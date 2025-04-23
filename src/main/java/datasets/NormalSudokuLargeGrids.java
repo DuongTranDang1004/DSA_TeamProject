@@ -1,13 +1,14 @@
+package datasets;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VeryHardSudoku {
+public class NormalSudokuLargeGrids {
 
     public static void main(String[] args) {
-        String filePath = "very_hard.csv"; // Path to your CSV file
-        int gridSize = 9; // Adjust this to 16 or 25 for larger grids
+        String filePath = "normal_large_grids.csv"; // Path to your CSV file
+        int gridSize = 16; // Adjust this to 16 or 25 for larger grids
         List<int[][]> sudokuGrids = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {

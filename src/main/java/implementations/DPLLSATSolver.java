@@ -1,3 +1,5 @@
+package implementations;
+
 import java.util.*;
 
     public class DPLLSATSolver {
@@ -12,7 +14,7 @@ import java.util.*;
             if (solveRecursive(cnf)) {
                 validateAssignments(assignment);
                 int[][] sudoku = decodeSudokuBoard(assignment);
-                printBoard(sudoku);
+                // printBoard(sudoku);
                 return sudoku;
             }
             return null;
