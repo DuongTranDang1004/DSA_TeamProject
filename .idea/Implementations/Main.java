@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import java.util.List;
 
 public class Main {
 
@@ -76,18 +77,47 @@ public class Main {
 
 
     public static void main(String[] args) {
-        // Example Sudoku puzzle
-        int[][] sudoku =  {
-                {4, 0, 0, 0, 0, 0, 8, 0, 5},
-                {0, 3, 0, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 7, 0, 0, 0, 0, 0},
-                {0, 2, 0, 0, 0, 0, 0, 6, 0},
-                {0, 0, 0, 0, 8, 0, 4, 0, 0},
-                {0, 0, 0, 0, 1, 0, 0, 0, 0},
-                {0, 0, 0, 6, 0, 3, 0, 7, 0},
-                {5, 0, 0, 2, 0, 0, 0, 0, 0},
-                {1, 0, 4, 0, 0, 0, 0, 0, 0}
-        };
+        // Option 1: Load normal 9x9 puzzles (using CSV)
+        List<int[][]> puzzles = Sudoku9x9.loadPuzzles("normal_9x9.csv", 9);
+        int[][] sudoku;
+        if (!puzzles.isEmpty()) {
+            sudoku = puzzles.get(0); // e.g., pick one 9x9 puzzle
+        } else {
+            // Example Sudoku puzzle
+            sudoku = new int[][]  {
+                    {4, 0, 0, 0, 0, 0, 8, 0, 5},
+                    {0, 3, 0, 0, 0, 0, 0, 0, 0},
+                    {0, 0, 0, 7, 0, 0, 0, 0, 0},
+                    {0, 2, 0, 0, 0, 0, 0, 6, 0},
+                    {0, 0, 0, 0, 8, 0, 4, 0, 0},
+                    {0, 0, 0, 0, 1, 0, 0, 0, 0},
+                    {0, 0, 0, 6, 0, 3, 0, 7, 0},
+                    {5, 0, 0, 2, 0, 0, 0, 0, 0},
+                    {1, 0, 4, 0, 0, 0, 0, 0, 0}
+            };
+        }
+
+        // Try to load the puzzles from the CSV using the loader utility.
+        // Option 2: Load large puzzles (16x16 or 25x25) from hardcoded strings:
+        // List<int[][]> puzzles = NormalSudokuLargeGrids.loadLargeGrids();//Modify the CSV file path to run different datasets 
+        // int[][] sudoku;
+        
+        // if (!puzzles.isEmpty()) {
+        //     sudoku = puzzles.get(2); // Use the first loaded puzzle, modify the number to run different puzzles
+        // } else {
+        //     // Example Sudoku puzzle
+        //     sudoku = new int[][]  {
+        //             {4, 0, 0, 0, 0, 0, 8, 0, 5},
+        //             {0, 3, 0, 0, 0, 0, 0, 0, 0},
+        //             {0, 0, 0, 7, 0, 0, 0, 0, 0},
+        //             {0, 2, 0, 0, 0, 0, 0, 6, 0},
+        //             {0, 0, 0, 0, 8, 0, 4, 0, 0},
+        //             {0, 0, 0, 0, 1, 0, 0, 0, 0},
+        //             {0, 0, 0, 6, 0, 3, 0, 7, 0},
+        //             {5, 0, 0, 2, 0, 0, 0, 0, 0},
+        //             {1, 0, 4, 0, 0, 0, 0, 0, 0}
+        //     };
+        // }
         // Running all solvers and measuring their performance
         System.out.println("=====================================");
         System.out.println("Running Backtracking Solver...");
