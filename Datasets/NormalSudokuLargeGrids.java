@@ -1,18 +1,11 @@
 import java.util.Scanner;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 public class NormalSudokuLargeGrids {
 
-    /**
-     * Loads large-grid Sudoku puzzles from hardcoded strings.
-     * The puzzles can be either 16x16 or 25x25, determined by the number of tokens.
-     *
-     * @return a List of 2D arrays (int[][]) representing each large-grid puzzle.
-     */
-    public static List<int[][]> loadLargeGrids() {
-        // List of puzzle strings (space-separated tokens)
+    public static void main(String[] args) {
+        // List of Sudoku puzzles (mixed 16x16 & 25x25)
         List<String> puzzles = Arrays.asList(
             // 16x16 Sudoku example
             "00 15 08 14 00 00 00 12 00 09 16 03 07 00 00 10 " 
@@ -119,43 +112,56 @@ public class NormalSudokuLargeGrids {
             + "20 00 02 09 00 21 00 15 07 00 00 18 22 00 05 03 00 00 00 16 11 25 23 19 12 "
             + "24 00 18 11 23 05 00 08 25 00 06 21 02 19 14 10 22 00 00 09 00 00 13 00 03 ");
 
-        List<int[][]> grids = new ArrayList<>();
+        // Process all puzzles dynamically
         for (String puzzle : puzzles) {
             int gridSize = determineGridSize(puzzle);
-            int[][] grid = convertToGrid(puzzle, gridSize);
-            grids.add(grid);
+            int[][] sudokuGrid = convertToGrid(puzzle, gridSize);
+            printGrid(sudokuGrid, gridSize);
         }
-        return grids;
     }
 
     /**
-     * Determines the grid size based on the number of tokens in the puzzle string.
-     * Assumes that tokens are space-separated.
-     *
-     * @param puzzle the puzzle string.
-     * @return the grid size (16 for 16x16 puzzles or 25 for 25x25 puzzles).
+     * Determines the grid size dynamically based on the puzzle string.
+     * It splits the string on whitespace and then checks the number of tokens:
+     * 256 tokens mean a 16x16 puzzle, otherwise it assumes 25x25 (625 tokens).
      */
     public static int determineGridSize(String puzzle) {
-        int totalElements = puzzle.split(" ").length;
-        return (totalElements == 256) ? 16 : 25; // 16x16 = 256 elements, 25x25 = 625 elements
+        // Split on one or more whitespace characters
+        String[] tokens = puzzle.trim().split("\\s+");
+        int totalElements = tokens.length;
+        // For a 16x16 grid, there should be 256 tokens.
+        // We assume if it's not 256, then it is a 25x25 grid (625 tokens).
+        return (totalElements == 256) ? 16 : 25;
     }
 
     /**
      * Converts a space-separated Sudoku puzzle string into a 2D grid.
+     * It reads each token as an integer and assigns it based on row/col indexing.
      *
-     * @param puzzle the puzzle string.
-     * @param gridSize the size of the grid (16 or 25).
-     * @return the 2D array representing the puzzle.
+     * @param puzzle   The puzzle string containing space-separated numbers.
+     * @param gridSize The size of the grid (either 16 or 25).
+     * @return A 2D integer array representing the Sudoku puzzle.
      */
     public static int[][] convertToGrid(String puzzle, int gridSize) {
         int[][] sudokuGrid = new int[gridSize][gridSize];
+        // Using a Scanner to process the puzzle string
         Scanner scanner = new Scanner(puzzle);
-
-        for (int row = 0; row < gridSize; row++) {
-            for (int col = 0; col < gridSize; col++) {
-                if (scanner.hasNextInt()) {
-                    sudokuGrid[row][col] = scanner.nextInt();
-                }
+        int row = 0, col = 0;
+        while (scanner.hasNext()) {
+            String token = scanner.next();
+            try {
+                int value = Integer.parseInt(token);
+                sudokuGrid[row][col] = value;
+            } catch (NumberFormatException e) {
+                // Print error if token is not a valid integer, then default to 0
+                System.err.println("Invalid token '" + token + "'. Defaulting to 0.");
+                sudokuGrid[row][col] = 0;
+            }
+            col++;
+            if (col == gridSize) {
+                col = 0;
+                row++;
+                if (row == gridSize) break;  // Safety check in case there are extra tokens
             }
         }
         scanner.close();
@@ -164,6 +170,9 @@ public class NormalSudokuLargeGrids {
 
     /**
      * Prints the Sudoku grid in a formatted layout.
+     *
+     * @param grid     The 2D array representing the Sudoku puzzle.
+     * @param gridSize The size of the grid.
      */
     public static void printGrid(int[][] grid, int gridSize) {
         System.out.println("\nSudoku " + gridSize + "x" + gridSize + " Grid:");
