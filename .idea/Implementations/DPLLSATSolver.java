@@ -24,7 +24,6 @@ public class DPLLSATSolver {
         if (solveRecursive(cnf)) {
             validateAssignments(assignment);
             int[][] sudoku = decodeSudokuBoard(assignment);
-            printBoard(sudoku);
             return sudoku;
         }
         return null;

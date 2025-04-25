@@ -105,7 +105,7 @@ public class DLXSolver {
         return dlx;
     }
 
-    public void solve(int[][] board) {
+    public int[][] solve(int[][] board) {
         if (!isValidBoard(board)) {
             throw new IllegalArgumentException("Invalid Sudoku board: must be " + N + "x" + N + " and only contain values from 0 to " + N);
         }
@@ -122,7 +122,7 @@ public class DLXSolver {
         }
 
         int[][] solved = search(dlx.head, solution);
-        printBoard(solved);
+        return solved;
     }
 
     private boolean isValidBoard(int[][] board) {

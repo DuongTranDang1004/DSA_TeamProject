@@ -14,6 +14,8 @@ public class Main {
         System.out.println("Backtracking Solver:");
         System.out.println("Elapsed time: " + elapsedTime + "ms");
         System.out.println("=====================================");
+        backTrackingSolver.printBoard();
+
     }
 
     // Performance test for Constraint Propagation Solver
@@ -28,32 +30,37 @@ public class Main {
         System.out.println("Constraint Propagation Solver:");
         System.out.println("Elapsed time: " + elapsedTime + "ms");
         System.out.println("=====================================");
+        constraintPropagationSolver.printBoard();
     }
 
     // Performance test for DPLL SAT Solver
     public static void solveUsingDPLLSAT(int[][] sudoku) {
         long startTime = System.currentTimeMillis();
         DPLLSATSolver dpllSATSolver = new DPLLSATSolver(sudoku.length);
-        dpllSATSolver.solve(sudoku);  // Solve using SAT Solver
+        int[][] solvedSudoku = dpllSATSolver.solve(sudoku);  // Solve using SAT
+        // Solver
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
         System.out.println("=====================================");
         System.out.println("DPLL SAT Solver:");
         System.out.println("Elapsed time: " + elapsedTime + "ms");
         System.out.println("=====================================");
+        dpllSATSolver.printBoard(solvedSudoku);
     }
 
     // Performance test for DLX Solver
     public static void solveUsingDLX(int[][] sudoku) {
         long startTime = System.currentTimeMillis();
         DLXSolver dlxSolver = new DLXSolver(sudoku.length);
-        dlxSolver.solve(sudoku);  // Solve using DLX Solver
+        int[][] solvedSudoku = dlxSolver.solve(sudoku);  // Solve using DLX
+        // Solver
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
         System.out.println("=====================================");
         System.out.println("DLX Solver:");
         System.out.println("Elapsed time: " + elapsedTime + "ms");
         System.out.println("=====================================");
+        dlxSolver.printBoard(solvedSudoku);
     }
 
     public static int[][] deepCopy(int[][] original) {
