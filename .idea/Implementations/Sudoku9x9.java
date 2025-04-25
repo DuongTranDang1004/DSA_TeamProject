@@ -3,7 +3,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NormalSudoku9x9 {
+public class Sudoku9x9 {
 
     /**
      * Loads Sudoku puzzles from a CSV file.

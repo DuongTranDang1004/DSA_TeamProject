@@ -1,90 +1,140 @@
+import java.util.Arrays;
+import java.util.List;
+
 public class Main {
 
     // Performance test for Backtracking Solver
     public static void solveUsingBackTracking(int[][] sudoku) {
         long startTime = System.currentTimeMillis();
-        BackTrackingSolver backTrackingSolver = new BackTrackingSolver(sudoku);
-        backTrackingSolver.solve();
+        BackTrackingSolver backTrackingSolver =
+                new BackTrackingSolver(sudoku.length);
+        backTrackingSolver.solve(sudoku);
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
         System.out.println("=====================================");
         System.out.println("Backtracking Solver:");
         System.out.println("Elapsed time: " + elapsedTime + "ms");
         System.out.println("=====================================");
+        backTrackingSolver.printBoard();
+
     }
 
     // Performance test for Constraint Propagation Solver
     public static void solveUsingConstraintPropagation(int[][] sudoku) {
         long startTime = System.currentTimeMillis();
-        ConstraintPropagationSolver constraintPropagationSolver = new ConstraintPropagationSolver(sudoku);
-        constraintPropagationSolver.solve();
+        ConstraintPropagationSolver constraintPropagationSolver =
+                new ConstraintPropagationSolver(sudoku.length);
+        constraintPropagationSolver.solve(sudoku);
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
         System.out.println("=====================================");
         System.out.println("Constraint Propagation Solver:");
         System.out.println("Elapsed time: " + elapsedTime + "ms");
         System.out.println("=====================================");
+        constraintPropagationSolver.printBoard();
     }
 
     // Performance test for DPLL SAT Solver
     public static void solveUsingDPLLSAT(int[][] sudoku) {
         long startTime = System.currentTimeMillis();
-        DPLLSATSolver dpllSATSolver = new DPLLSATSolver();
-        dpllSATSolver.solve(sudoku);  // Solve using SAT Solver
+        DPLLSATSolver dpllSATSolver = new DPLLSATSolver(sudoku.length);
+        int[][] solvedSudoku = dpllSATSolver.solve(sudoku);  // Solve using SAT
+        // Solver
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
         System.out.println("=====================================");
         System.out.println("DPLL SAT Solver:");
         System.out.println("Elapsed time: " + elapsedTime + "ms");
         System.out.println("=====================================");
+        dpllSATSolver.printBoard(solvedSudoku);
     }
 
     // Performance test for DLX Solver
     public static void solveUsingDLX(int[][] sudoku) {
         long startTime = System.currentTimeMillis();
-        DLXSolver.solve(sudoku);  // Solve using DLX Solver
+        DLXSolver dlxSolver = new DLXSolver(sudoku.length);
+        int[][] solvedSudoku = dlxSolver.solve(sudoku);  // Solve using DLX
+        // Solver
         long endTime = System.currentTimeMillis();
         long elapsedTime = endTime - startTime;
         System.out.println("=====================================");
         System.out.println("DLX Solver:");
         System.out.println("Elapsed time: " + elapsedTime + "ms");
         System.out.println("=====================================");
+        dlxSolver.printBoard(solvedSudoku);
     }
 
-    public static void main(String[] args) {
-        // Example Sudoku puzzle
-        int[][] sudoku = {
-            {5, 3, 0, 0, 7, 0, 0, 0, 0},
-            {6, 0, 0, 1, 9, 5, 0, 0, 0},
-            {0, 9, 8, 0, 0, 0, 0, 6, 0},
-            {8, 0, 0, 0, 6, 0, 0, 0, 3},
-            {4, 0, 0, 8, 0, 3, 0, 0, 1},
-            {7, 0, 0, 0, 2, 0, 0, 0, 6},
-            {0, 6, 0, 0, 0, 0, 2, 8, 0},
-            {0, 0, 0, 4, 1, 9, 0, 0, 5},
-            {0, 0, 0, 0, 8, 0, 0, 7, 9}
-        };
+    public static int[][] deepCopy(int[][] original) {
+        if (original == null) return null;
 
+        int[][] copy = new int[original.length][];
+        for (int i = 0; i < original.length; i++) {
+            copy[i] = Arrays.copyOf(original[i], original[i].length);
+        }
+        return copy;
+    }
+
+
+
+    public static void main(String[] args) {
+        // Option 1: Load normal 9x9 puzzles (using CSV)
+        List<int[][]> puzzles = Sudoku9x9.loadPuzzles("normal_9x9.csv", 9);
+        int[][] sudoku;
+        if (!puzzles.isEmpty()) {
+            sudoku = puzzles.get(0); // e.g., pick one 9x9 puzzle
+        } else {
+            // Example Sudoku puzzle
+            sudoku = new int[][]  {
+                    {4, 0, 0, 0, 0, 0, 8, 0, 5},
+                    {0, 3, 0, 0, 0, 0, 0, 0, 0},
+                    {0, 0, 0, 7, 0, 0, 0, 0, 0},
+                    {0, 2, 0, 0, 0, 0, 0, 6, 0},
+                    {0, 0, 0, 0, 8, 0, 4, 0, 0},
+                    {0, 0, 0, 0, 1, 0, 0, 0, 0},
+                    {0, 0, 0, 6, 0, 3, 0, 7, 0},
+                    {5, 0, 0, 2, 0, 0, 0, 0, 0},
+                    {1, 0, 4, 0, 0, 0, 0, 0, 0}
+            };
+        }
+
+        // Try to load the puzzles from the CSV using the loader utility.
+        // Option 2: Load large puzzles (16x16 or 25x25) from hardcoded strings:
+        // List<int[][]> puzzles = NormalSudokuLargeGrids.loadLargeGrids();//Modify the CSV file path to run different datasets 
+        // int[][] sudoku;
+        
+        // if (!puzzles.isEmpty()) {
+        //     sudoku = puzzles.get(2); // Use the first loaded puzzle, modify the number to run different puzzles
+        // } else {
+        //     // Example Sudoku puzzle
+        //     sudoku = new int[][]  {
+        //             {4, 0, 0, 0, 0, 0, 8, 0, 5},
+        //             {0, 3, 0, 0, 0, 0, 0, 0, 0},
+        //             {0, 0, 0, 7, 0, 0, 0, 0, 0},
+        //             {0, 2, 0, 0, 0, 0, 0, 6, 0},
+        //             {0, 0, 0, 0, 8, 0, 4, 0, 0},
+        //             {0, 0, 0, 0, 1, 0, 0, 0, 0},
+        //             {0, 0, 0, 6, 0, 3, 0, 7, 0},
+        //             {5, 0, 0, 2, 0, 0, 0, 0, 0},
+        //             {1, 0, 4, 0, 0, 0, 0, 0, 0}
+        //     };
+        // }
         // Running all solvers and measuring their performance
         System.out.println("=====================================");
         System.out.println("Running Backtracking Solver...");
-        solveUsingBackTracking(sudoku);
+        solveUsingBackTracking(deepCopy(sudoku));
 
         System.out.println("=====================================");
         System.out.println("Running Constraint Propagation Solver...");
-        solveUsingConstraintPropagation(sudoku);
+        solveUsingConstraintPropagation(deepCopy(sudoku));
 
         System.out.println("=====================================");
         System.out.println("Running DPLL SAT Solver...");
-        solveUsingDPLLSAT(sudoku);
+        solveUsingDPLLSAT(deepCopy(sudoku));
 
         System.out.println("=====================================");
         System.out.println("Running DLX Solver...");
-        solveUsingDLX(sudoku);
+        solveUsingDLX(deepCopy(sudoku));
 
-        System.out.println("=====================================");
-        System.out.println("Running DLX Test...");
-        // Run DLX tests
-        DLXSudokuTest.main(args);
+
     }
 }

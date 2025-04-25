@@ -1,10 +1,18 @@
 import java.util.*;
 
 public class DLXSolver {
-    private static final int N = 9;
-    private static final int CONSTRAINTS = 4 * N * N;
+    private final int N;
+    private final int CONSTRAINTS;
 
-    static class DLXNode {
+    public DLXSolver(int N) {
+        if (Math.sqrt(N) != (int) Math.sqrt(N)) {
+            throw new IllegalArgumentException("N must be a perfect square (e.g., 4, 9, 16).");
+        }
+        this.N = N;
+        this.CONSTRAINTS = 4 * N * N;
+    }
+
+    class DLXNode {
         DLXNode left, right, up, down;
         ColumnHeader column;
         int rowId;
@@ -28,7 +36,7 @@ public class DLXSolver {
         }
     }
 
-    static class ColumnHeader extends DLXNode {
+    class ColumnHeader extends DLXNode {
         int id;
         int size;
 
@@ -39,7 +47,7 @@ public class DLXSolver {
         }
     }
 
-    static class DLXHeader {
+    class DLXHeader {
         ColumnHeader head;
         ColumnHeader[] columns;
 
@@ -57,8 +65,9 @@ public class DLXSolver {
         }
     }
 
-    public static DLXHeader buildDLXStructure(int[][] board, List<DLXNode> presetRows) {
+    public DLXHeader buildDLXStructure(int[][] board, List<DLXNode> presetRows) {
         DLXHeader dlx = new DLXHeader();
+        int boxSize = (int) Math.sqrt(N);
 
         for (int r = 0; r < N; r++) {
             for (int c = 0; c < N; c++) {
@@ -68,7 +77,6 @@ public class DLXSolver {
                     int cellCol = r * N + c;
                     int rowCol = N * N + r * N + (d - 1);
                     int colCol = 2 * N * N + c * N + (d - 1);
-                    int boxSize = (int) Math.sqrt(N);
                     int boxId = (r / boxSize) * boxSize + (c / boxSize);
                     int boxCol = 3 * N * N + boxId * N + (d - 1);
 
@@ -97,24 +105,38 @@ public class DLXSolver {
         return dlx;
     }
 
-    public static void solve(int[][] board) {
+    public int[][] solve(int[][] board) {
+        if (!isValidBoard(board)) {
+            throw new IllegalArgumentException("Invalid Sudoku board: must be " + N + "x" + N + " and only contain values from 0 to " + N);
+        }
+
         List<DLXNode> preset = new ArrayList<>();
         DLXHeader dlx = buildDLXStructure(board, preset);
-
         List<DLXNode> solution = new ArrayList<>();
 
         for (DLXNode node : preset) {
             for (DLXNode j = node.right; j != node; j = j.right)
                 cover(j.column);
             cover(node.column);
-            solution.add(node); // 🟢 Add to solution
+            solution.add(node);
         }
 
-        int[][] solvedSudoku = search(dlx.head, solution);
-        printBoard(solvedSudoku);
+        int[][] solved = search(dlx.head, solution);
+        return solved;
     }
 
-    public static void cover(ColumnHeader column) {
+    private boolean isValidBoard(int[][] board) {
+        if (board.length != N) return false;
+        for (int[] row : board) {
+            if (row.length != N) return false;
+            for (int cell : row) {
+                if (cell < 0 || cell > N) return false;
+            }
+        }
+        return true;
+    }
+
+    public void cover(ColumnHeader column) {
         column.right.left = column.left;
         column.left.right = column.right;
 
@@ -127,7 +149,7 @@ public class DLXSolver {
         }
     }
 
-    public static void uncover(ColumnHeader column) {
+    public void uncover(ColumnHeader column) {
         for (DLXNode row = column.up; row != column; row = row.up) {
             for (DLXNode node = row.left; node != row; node = node.left) {
                 node.column.size++;
@@ -139,7 +161,7 @@ public class DLXSolver {
         column.left.right = column;
     }
 
-    public static int[][] search(ColumnHeader head, List<DLXNode> solution) {
+    public int[][] search(ColumnHeader head, List<DLXNode> solution) {
         if (head.right == head) {
             return decodeSolution(solution);
         }
@@ -148,26 +170,20 @@ public class DLXSolver {
         if (col.size == 0) return null;
 
         cover(col);
-
         for (DLXNode row = col.down; row != col; row = row.down) {
             DLXNode n = row;
             do {
-                if (n.column.id < N * N) break; // cell constraint
+                if (n.column.id < N * N) break;
                 n = n.right;
             } while (n != row);
-            solution.add(n); // always add the node with cell info
 
-            for (DLXNode j = row.right; j != row; j = j.right) {
-                cover(j.column);
-            }
+            solution.add(n);
+            for (DLXNode j = row.right; j != row; j = j.right) cover(j.column);
 
             int[][] result = search(head, solution);
-            if (result != null) return result; // ✅ found a solution, return it
+            if (result != null) return result;
 
-            for (DLXNode j = row.left; j != row; j = j.left) {
-                uncover(j.column);
-            }
-
+            for (DLXNode j = row.left; j != row; j = j.left) uncover(j.column);
             solution.remove(solution.size() - 1);
         }
 
@@ -175,7 +191,7 @@ public class DLXSolver {
         return null;
     }
 
-    private static ColumnHeader chooseColumnWithFewestNodes(ColumnHeader head) {
+    private ColumnHeader chooseColumnWithFewestNodes(ColumnHeader head) {
         ColumnHeader best = null;
         int minSize = Integer.MAX_VALUE;
         for (ColumnHeader col = (ColumnHeader) head.right; col != head; col = (ColumnHeader) col.right) {
@@ -187,18 +203,21 @@ public class DLXSolver {
         return best;
     }
 
-    public static void printBoard(int[][] sudoku) {
-        for (int i = 0; i < 9; i++) {
-            if (i % 3 == 0 && i != 0) System.out.println("------+-------+------");
-            for (int j = 0; j < 9; j++) {
-                if (j % 3 == 0 && j != 0) System.out.print("| ");
-                System.out.print(sudoku[i][j] == 0 ? ". " : sudoku[i][j] + " ");
+    public void printBoard(int[][] board) {
+        int boxSize = (int) Math.sqrt(N);
+        for (int i = 0; i < N; i++) {
+            if (i % boxSize == 0 && i != 0) {
+                System.out.println("-".repeat(N * 2 + boxSize - 1));
+            }
+            for (int j = 0; j < N; j++) {
+                if (j % boxSize == 0 && j != 0) System.out.print("| ");
+                System.out.print(board[i][j] == 0 ? ". " : board[i][j] + " ");
             }
             System.out.println();
         }
     }
 
-    public static int[][] decodeSolution(List<DLXNode> solution) {
+    public int[][] decodeSolution(List<DLXNode> solution) {
         int[][] board = new int[N][N];
         for (DLXNode node : solution) {
             DLXNode cellNode = node;
