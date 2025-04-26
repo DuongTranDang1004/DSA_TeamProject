@@ -6,6 +6,9 @@ public class DLXSolver {
     private final int N;
     private final int CONSTRAINTS;
 
+    private int propagationDepth = 0;
+    private int numberOfGuesses = 0;
+
     public DLXSolver(int N) {
         if (Math.sqrt(N) != (int) Math.sqrt(N)) {
             throw new IllegalArgumentException("N must be a perfect square (e.g., 4, 9, 16).");
@@ -123,7 +126,11 @@ public class DLXSolver {
             solution.add(node);
         }
 
-        int[][] solved = search(dlx.head, solution);
+        // ➡️ RESET lại biến đếm
+        propagationDepth = 0;
+        numberOfGuesses = 0;
+
+        int[][] solved = search(dlx.head, solution, 0);
         return solved;
     }
 
@@ -163,7 +170,9 @@ public class DLXSolver {
         column.left.right = column;
     }
 
-    public int[][] search(ColumnHeader head, List<DLXNode> solution) {
+    public int[][] search(ColumnHeader head, List<DLXNode> solution, int depth) {
+        propagationDepth = Math.max(propagationDepth, depth);
+
         if (head.right == head) {
             return decodeSolution(solution);
         }
@@ -179,10 +188,12 @@ public class DLXSolver {
                 n = n.right;
             } while (n != row);
 
+            numberOfGuesses++; // ➡️ mỗi lần chọn dòng là 1 lần thử chọn.
+
             solution.add(n);
             for (DLXNode j = row.right; j != row; j = j.right) cover(j.column);
 
-            int[][] result = search(head, solution);
+            int[][] result = search(head, solution, depth + 1);
             if (result != null) return result;
 
             for (DLXNode j = row.left; j != row; j = j.left) uncover(j.column);
@@ -240,5 +251,14 @@ public class DLXSolver {
             board[r][c] = d;
         }
         return board;
+    }
+
+    // ➡️ Getter để lấy thông số
+    public int getPropagationDepth() {
+        return propagationDepth;
+    }
+
+    public int getNumberOfGuesses() {
+        return numberOfGuesses;
     }
 }

@@ -11,6 +11,10 @@ public class BackTrackingSolver {
     public Map<Integer, Set<Integer>> boxConstraints = new HashMap<>();
     public Map<String, Set<Integer>> domain;
 
+    // ➡️ MỚI THÊM
+    public int propagationDepth = 0;
+    public int numberOfGuesses = 0;
+
     public BackTrackingSolver(int N) {
         if (Math.sqrt(N) != (int) Math.sqrt(N)) {
             throw new IllegalArgumentException("N must be a perfect square.");
@@ -104,7 +108,8 @@ public class BackTrackingSolver {
         return domain;
     }
 
-    public boolean guessingCell(int row, int col) {
+    // ➡️ CHỈNH ĐỂ GHI NHẬN depth và số lần guess
+    public boolean guessingCell(int row, int col, int currentDepth) {
         int boxSize = (int) Math.sqrt(N);
         if (row == N) return true;
 
@@ -112,28 +117,34 @@ public class BackTrackingSolver {
         int nextCol = (col == N - 1) ? 0 : col + 1;
 
         if (sudoku[row][col] != 0) {
-            return guessingCell(nextRow, nextCol);
+            return guessingCell(nextRow, nextCol, currentDepth);
         }
 
-        int boxIndex = (row / boxSize) * boxSize + (col / boxSize);
-        Set<Integer> rowSet = rowConstraints.get(row);
-        Set<Integer> colSet = colConstraints.get(col);
-        Set<Integer> boxSet = boxConstraints.get(boxIndex);
+        propagationDepth = Math.max(propagationDepth, currentDepth);
 
-        for (int i = 1; i <= N; i++) {
-            if (!rowSet.contains(i) && !colSet.contains(i) && !boxSet.contains(i)) {
-                sudoku[row][col] = i;
-                rowSet.add(i);
-                colSet.add(i);
-                boxSet.add(i);
-
-                if (guessingCell(nextRow, nextCol)) return true;
-
-                sudoku[row][col] = 0;
-                rowSet.remove(i);
-                colSet.remove(i);
-                boxSet.remove(i);
+        List<Integer> candidates = new ArrayList<>();
+        for (int val = 1; val <= N; val++) {
+            if (!rowConstraints.getOrDefault(row, Set.of()).contains(val)
+                    && !colConstraints.getOrDefault(col, Set.of()).contains(val)
+                    && !boxConstraints.getOrDefault(getBoxIndex(row, col), Set.of()).contains(val)) {
+                candidates.add(val);
             }
+        }
+
+        if (candidates.size() > 1) numberOfGuesses++;  // ➡️ có nhiều hơn 1 chọn lựa thì tính là 1 lần guess
+
+        for (int i : candidates) {
+            sudoku[row][col] = i;
+            rowConstraints.get(row).add(i);
+            colConstraints.get(col).add(i);
+            boxConstraints.get(getBoxIndex(row, col)).add(i);
+
+            if (guessingCell(nextRow, nextCol, currentDepth + 1)) return true;
+
+            sudoku[row][col] = 0;
+            rowConstraints.get(row).remove(i);
+            colConstraints.get(col).remove(i);
+            boxConstraints.get(getBoxIndex(row, col)).remove(i);
         }
 
         return false;
@@ -170,11 +181,14 @@ public class BackTrackingSolver {
         }
 
         this.sudoku = sudoku;
+        this.propagationDepth = 0; // ➡️ reset
+        this.numberOfGuesses = 0;  // ➡️ reset
+
         findInitialRowConstraint();
         findInitialColConstraint();
         findInitialBoxConstraint();
 
-        boolean solvable = guessingCell(0, 0);
+        boolean solvable = guessingCell(0, 0, 0); // ➡️ depth ban đầu = 0
         if (solvable) {
             printBoard();
             return sudoku;
@@ -182,5 +196,14 @@ public class BackTrackingSolver {
             System.out.println("No solution found");
             return null;
         }
+    }
+
+    // ➡️ Getter để lấy thông số ra ngoài
+    public int getPropagationDepth() {
+        return propagationDepth;
+    }
+
+    public int getNumberOfGuesses() {
+        return numberOfGuesses;
     }
 }

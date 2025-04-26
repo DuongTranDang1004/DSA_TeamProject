@@ -11,6 +11,10 @@ public class ConstraintPropagationSolver {
     public Map<Integer, Set<Integer>> boxConstraints = new HashMap<>();
     public Map<String, Set<Integer>> domain = new HashMap<>();
 
+    // ➡️ MỚI THÊM: thống kê depth và guesses
+    public int propagationDepth = 0;
+    public int numberOfGuesses = 0;
+
     public ConstraintPropagationSolver(int N) {
         if (Math.sqrt(N) != (int) Math.sqrt(N)) {
             throw new IllegalArgumentException("N must be a perfect square.");
@@ -54,6 +58,8 @@ public class ConstraintPropagationSolver {
         }
 
         this.sudoku = sudoku;
+        this.propagationDepth = 0; // ➡️ reset
+        this.numberOfGuesses = 0;  // ➡️ reset
 
         for (int i = 0; i < N; i++) {
             rowConstraints.put(i, new HashSet<>());
@@ -63,7 +69,7 @@ public class ConstraintPropagationSolver {
 
         initializeConstraintsAndDomain();
 
-        if (backtrack(new HashMap<>(domain))) {
+        if (backtrack(new HashMap<>(domain), 0)) { // ➡️ truyền depth ban đầu = 0
             printBoard();
             return sudoku;
         } else {
@@ -72,7 +78,8 @@ public class ConstraintPropagationSolver {
         }
     }
 
-    public boolean backtrack(Map<String, Set<Integer>> currentDomain) {
+    // ➡️ Thay đổi backtrack để đếm depth và guess
+    public boolean backtrack(Map<String, Set<Integer>> currentDomain, int currentDepth) {
         int boxSize = (int) Math.sqrt(N);
 
         if (currentDomain.isEmpty()) return true;
@@ -81,12 +88,17 @@ public class ConstraintPropagationSolver {
             if (values.isEmpty()) return false;
         }
 
+        propagationDepth = Math.max(propagationDepth, currentDepth);
+
         String cell = selectCellWithMRV(currentDomain);
         String[] parts = cell.split(",");
         int row = Integer.parseInt(parts[0]);
         int col = Integer.parseInt(parts[1]);
 
-        for (int value : new HashSet<>(currentDomain.get(cell))) {
+        Set<Integer> valuesToTry = new HashSet<>(currentDomain.get(cell));
+        if (valuesToTry.size() > 1) numberOfGuesses++;  // ➡️ nếu có nhiều hơn 1 lựa chọn → ghi nhận 1 lần guess
+
+        for (int value : valuesToTry) {
             if (rowConstraints.get(row).contains(value)
                     || colConstraints.get(col).contains(value)
                     || boxConstraints.get(getBoxIndex(row, col, boxSize)).contains(value)) {
@@ -102,7 +114,7 @@ public class ConstraintPropagationSolver {
             nextDomain.remove(cell);
             propagate(row, col, value, nextDomain, boxSize);
 
-            if (backtrack(nextDomain)) return true;
+            if (backtrack(nextDomain, currentDepth + 1)) return true;
 
             sudoku[row][col] = 0;
             rowConstraints.get(row).remove(value);
@@ -171,5 +183,14 @@ public class ConstraintPropagationSolver {
             }
         }
         return true;
+    }
+
+    // ➡️ MỚI THÊM: Getter để Main.java lấy được
+    public int getPropagationDepth() {
+        return propagationDepth;
+    }
+
+    public int getNumberOfGuesses() {
+        return numberOfGuesses;
     }
 }

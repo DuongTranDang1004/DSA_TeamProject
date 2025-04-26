@@ -8,6 +8,10 @@ public class DPLLSATSolver {
     private int[][] cnf;
     private final Map<Integer, Boolean> assignment = new HashMap<>();
 
+    // ➡️ MỚI THÊM
+    private int propagationDepth = 0;
+    private int numberOfGuesses = 0;
+
     public DPLLSATSolver(int N) {
         if (Math.sqrt(N) != (int) Math.sqrt(N)) {
             throw new IllegalArgumentException("N must be a perfect square.");
@@ -23,10 +27,13 @@ public class DPLLSATSolver {
         SudokuCnfEncoder encoder = new SudokuCnfEncoder(N);
         this.cnf = encoder.encodeSudoku(sudokuBoard);
 
-        if (solveRecursive(cnf)) {
+        propagationDepth = 0;
+        numberOfGuesses = 0;
+        assignment.clear(); // Reset assignment trước mỗi lần solve
+
+        if (solveRecursive(cnf, 0)) { // ➡️ depth ban đầu = 0
             validateAssignments(assignment);
-            int[][] sudoku = decodeSudokuBoard(assignment);
-            return sudoku;
+            return decodeSudokuBoard(assignment);
         }
         return null;
     }
@@ -42,7 +49,9 @@ public class DPLLSATSolver {
         return true;
     }
 
-    private boolean solveRecursive(int[][] cnf) {
+    private boolean solveRecursive(int[][] cnf, int currentDepth) {
+        propagationDepth = Math.max(propagationDepth, currentDepth);
+
         if (cnf.length == 0) return true;
 
         for (int[] clause : cnf) {
@@ -53,7 +62,7 @@ public class DPLLSATSolver {
         if (unitLiteral != null) {
             applyAssignment(unitLiteral);
             int[][] simplified = simplify(cnf, unitLiteral);
-            boolean result = solveRecursive(simplified);
+            boolean result = solveRecursive(simplified, currentDepth + 1);
             if (!result) assignment.remove(Math.abs(unitLiteral));
             return result;
         }
@@ -61,12 +70,14 @@ public class DPLLSATSolver {
         Integer decisionLiteral = chooseLiteral(cnf);
         if (decisionLiteral == null) return true;
 
+        numberOfGuesses++; // ➡️ mỗi lần tự quyết định (không phải đơn hình) là 1 lần đoán
+
         applyAssignment(decisionLiteral);
-        if (solveRecursive(simplify(cnf, decisionLiteral))) return true;
+        if (solveRecursive(simplify(cnf, decisionLiteral), currentDepth + 1)) return true;
         assignment.remove(Math.abs(decisionLiteral));
 
         applyAssignment(-decisionLiteral);
-        if (solveRecursive(simplify(cnf, -decisionLiteral))) return true;
+        if (solveRecursive(simplify(cnf, -decisionLiteral), currentDepth + 1)) return true;
         assignment.remove(Math.abs(decisionLiteral));
 
         return false;
@@ -122,7 +133,7 @@ public class DPLLSATSolver {
             if (lit != literalToRemove) count++;
         }
 
-        if (count == 0) return new int[0]; // conflict
+        if (count == 0) return new int[0];
 
         int[] result = new int[count];
         int i = 0;
@@ -179,5 +190,14 @@ public class DPLLSATSolver {
                 }
             }
         }
+    }
+
+    // ➡️ Getter để lấy thông số ra ngoài
+    public int getPropagationDepth() {
+        return propagationDepth;
+    }
+
+    public int getNumberOfGuesses() {
+        return numberOfGuesses;
     }
 }

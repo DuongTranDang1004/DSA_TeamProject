@@ -1,3 +1,5 @@
+// Main.java - Version cập nhật lưu NumberOfGuesses và PropagationDepth
+
 package implementations;
 
 import datasets.PuzzleBank;
@@ -18,6 +20,22 @@ public class Main {
             this.hintCount = countHints(puzzle);
             this.hintVariance = computeHintSpread(puzzle);
             this.difficultyScore = computeDifficultyScore(puzzle);
+        }
+    }
+
+    public static class SolveResult {
+        boolean solved;
+        long[] times;
+        int numberOfGuesses;
+        int propagationDepth;
+        int[][] solvedBoard;
+
+        SolveResult(boolean solved, long[] times, int numberOfGuesses, int propagationDepth, int[][] solvedBoard) {
+            this.solved = solved;
+            this.times = times;
+            this.numberOfGuesses = numberOfGuesses;
+            this.propagationDepth = propagationDepth;
+            this.solvedBoard = solvedBoard;
         }
     }
 
@@ -90,9 +108,11 @@ public class Main {
         return sb.toString();
     }
 
-    public static String[] solveAndBenchmark(String puzzleName, PuzzleInfo info, String solverName) {
-        List<Long> times = new ArrayList<>();
+    public static SolveResult solveAndBenchmark(String puzzleName, PuzzleInfo info, String solverName) {
+        long[] times = new long[5];
         boolean solved = false;
+        int numberOfGuesses = 0;
+        int propagationDepth = 0;
         int[][] firstSolvedBoard = null;
 
         for (int attempt = 0; attempt < 5; attempt++) {
@@ -103,27 +123,35 @@ public class Main {
                 switch (solverName) {
                     case "Backtracking":
                         BackTrackingSolver backSolver = new BackTrackingSolver(puzzleCopy.length);
-                        int[][] backSolved =  backSolver.solve(puzzleCopy);
+                        int[][] backSolved = backSolver.solve(puzzleCopy);
                         solved = backSolved != null;
-                        if (attempt == 0 && solved) firstSolvedBoard = deepCopy(puzzleCopy);
+                        numberOfGuesses = backSolver.getNumberOfGuesses();
+                        propagationDepth = backSolver.getPropagationDepth();
+                        if (attempt == 0 && solved) firstSolvedBoard = deepCopy(backSolved);
                         break;
                     case "ConstraintPropagation":
                         ConstraintPropagationSolver constraintSolver = new ConstraintPropagationSolver(puzzleCopy.length);
                         int[][] constraintSolved = constraintSolver.solve(puzzleCopy);
                         solved = constraintSolved != null;
-                        if (attempt == 0 && solved) firstSolvedBoard = constraintSolved;
+                        numberOfGuesses = constraintSolver.getNumberOfGuesses();
+                        propagationDepth = constraintSolver.getPropagationDepth();
+                        if (attempt == 0 && solved) firstSolvedBoard = deepCopy(constraintSolved);
                         break;
                     case "DPLLSAT":
                         DPLLSATSolver dpllSolver = new DPLLSATSolver(puzzleCopy.length);
                         int[][] dpllSolved = dpllSolver.solve(puzzleCopy);
                         solved = dpllSolved != null;
-                        if (attempt == 0 && solved) firstSolvedBoard = dpllSolved;
+                        numberOfGuesses = dpllSolver.getNumberOfGuesses();
+                        propagationDepth = dpllSolver.getPropagationDepth();
+                        if (attempt == 0 && solved) firstSolvedBoard = deepCopy(dpllSolved);
                         break;
                     case "DLX":
                         DLXSolver dlxSolver = new DLXSolver(puzzleCopy.length);
                         int[][] dlxSolved = dlxSolver.solve(puzzleCopy);
                         solved = dlxSolved != null;
-                        if (attempt == 0 && solved) firstSolvedBoard = dlxSolved;
+                        numberOfGuesses = dlxSolver.getNumberOfGuesses();
+                        propagationDepth = dlxSolver.getPropagationDepth();
+                        if (attempt == 0 && solved) firstSolvedBoard = deepCopy(dlxSolved);
                         break;
                 }
             } catch (Exception e) {
@@ -131,27 +159,10 @@ public class Main {
             }
 
             long elapsed = System.currentTimeMillis() - startTime;
-            times.add(elapsed);
+            times[attempt] = elapsed;
         }
 
-        long bestTime = Collections.min(times);
-        long worstTime = Collections.max(times);
-        long avgTime = (long) times.stream().mapToLong(Long::longValue).average().orElse(0);
-
-        return new String[]{
-                puzzleName,
-                solverName,
-                String.valueOf(times.get(0)),
-                solved ? "Yes" : "No",
-                String.valueOf(info.hintCount),
-                String.format("%.2f", info.hintVariance),
-                String.format("%.2f", info.difficultyScore),
-                String.valueOf(bestTime),
-                String.valueOf(worstTime),
-                String.valueOf(avgTime),
-                boardToString(info.puzzle),
-                solved && firstSolvedBoard != null ? boardToString(firstSolvedBoard) : ""
-        };
+        return new SolveResult(solved, times, numberOfGuesses, propagationDepth, firstSolvedBoard);
     }
 
     public static void main(String[] args) {
@@ -163,17 +174,44 @@ public class Main {
         }
 
         List<String[]> records = new ArrayList<>();
-        records.add(new String[]{"PuzzleName", "Solver", "Time(ms)", "Solved", "HintCount", "HintVariance", "DifficultyScore", "BestTime(ms)", "WorstTime(ms)", "AverageTime(ms)", "OriginalPuzzle", "Solution"});
+        records.add(new String[]{"PuzzleName", "Solver", "Solved", "HintCount", "HintVariance", "DifficultyScore",
+                "Run1(ms)", "Run2(ms)", "Run3(ms)", "Run4(ms)", "Run5(ms)",
+                "BestTime(ms)", "WorstTime(ms)", "AverageTime(ms)",
+                "NumberOfGuesses", "PropagationDepth", "OriginalPuzzle", "Solution"});
 
         int index = 1;
         for (int[][] puzzle : puzzles) {
             PuzzleInfo info = new PuzzleInfo(puzzle);
             String puzzleName = "Puzzle_" + index++;
 
-            records.add(solveAndBenchmark(puzzleName, info, "Backtracking"));
-            records.add(solveAndBenchmark(puzzleName, info, "ConstraintPropagation"));
-            records.add(solveAndBenchmark(puzzleName, info, "DPLLSAT"));
-            records.add(solveAndBenchmark(puzzleName, info, "DLX"));
+            for (String solver : List.of("Backtracking", "ConstraintPropagation", "DPLLSAT", "DLX")) {
+                SolveResult result = solveAndBenchmark(puzzleName, info, solver);
+
+                long bestTime = Arrays.stream(result.times).min().orElse(0);
+                long worstTime = Arrays.stream(result.times).max().orElse(0);
+                long avgTime = (long) Arrays.stream(result.times).average().orElse(0);
+
+                records.add(new String[]{
+                        puzzleName,
+                        solver,
+                        result.solved ? "Yes" : "No",
+                        String.valueOf(info.hintCount),
+                        String.format("%.2f", info.hintVariance),
+                        String.format("%.2f", info.difficultyScore),
+                        String.valueOf(result.times[0]),
+                        String.valueOf(result.times[1]),
+                        String.valueOf(result.times[2]),
+                        String.valueOf(result.times[3]),
+                        String.valueOf(result.times[4]),
+                        String.valueOf(bestTime),
+                        String.valueOf(worstTime),
+                        String.valueOf(avgTime),
+                        String.valueOf(result.numberOfGuesses),
+                        String.valueOf(result.propagationDepth),
+                        boardToString(info.puzzle),
+                        result.solved && result.solvedBoard != null ? boardToString(result.solvedBoard) : ""
+                });
+            }
         }
 
         try (FileWriter writer = new FileWriter("puzzle_result.csv")) {
@@ -181,9 +219,9 @@ public class Main {
                 writer.write(String.join(",", record));
                 writer.write("\n");
             }
-            System.out.println("✅ Results saved to puzzle_result.csv");
+            System.out.println("Results saved to puzzle_result.csv");
         } catch (IOException e) {
-            System.out.println("❌ Error writing CSV: " + e.getMessage());
+            System.out.println("Error writing CSV: " + e.getMessage());
         }
     }
 }
