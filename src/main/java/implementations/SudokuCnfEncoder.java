@@ -1,15 +1,26 @@
+
 package implementations;
 
 import java.util.ArrayList;
+
 import java.util.List;
 
 public class SudokuCnfEncoder {
 
-    private static int convertFromCellToPropositionalValue(int r, int c, int d) {
+    private final int N;
+
+    public SudokuCnfEncoder(int N) {
+        if (Math.sqrt(N) != (int) Math.sqrt(N)) {
+            throw new IllegalArgumentException("N must be a perfect square");
+        }
+        this.N = N;
+    }
+
+    private int convertFromCellToPropositionalValue(int r, int c, int d) {
         return 100 * r + 10 * c + d;
     }
 
-    public static int[][] encodeSudoku(int[][] board) {
+    public int[][] encodeSudoku(int[][] board) {
         List<int[]> clauses = new ArrayList<>();
 
         addCellConstraints(clauses);
@@ -22,11 +33,11 @@ public class SudokuCnfEncoder {
         return clauses.toArray(new int[0][]);
     }
 
-    private static void addCellConstraints(List<int[]> cnf) {
-        for (int r = 1; r <= 9; r++) {
-            for (int c = 1; c <= 9; c++) {
-                int[] clause = new int[9];
-                for (int d = 1; d <= 9; d++) {
+    private void addCellConstraints(List<int[]> cnf) {
+        for (int r = 1; r <= N; r++) {
+            for (int c = 1; c <= N; c++) {
+                int[] clause = new int[N];
+                for (int d = 1; d <= N; d++) {
                     clause[d - 1] = convertFromCellToPropositionalValue(r, c, d);
                 }
                 cnf.add(clause);
@@ -34,11 +45,11 @@ public class SudokuCnfEncoder {
         }
     }
 
-    private static void addCellUniquenessConstraints(List<int[]> cnf) {
-        for (int r = 1; r <= 9; r++) {
-            for (int c = 1; c <= 9; c++) {
-                for (int d1 = 1; d1 <= 9; d1++) {
-                    for (int d2 = d1 + 1; d2 <= 9; d2++) {
+    private void addCellUniquenessConstraints(List<int[]> cnf) {
+        for (int r = 1; r <= N; r++) {
+            for (int c = 1; c <= N; c++) {
+                for (int d1 = 1; d1 <= N; d1++) {
+                    for (int d2 = d1 + 1; d2 <= N; d2++) {
                         cnf.add(new int[]{
                                 -convertFromCellToPropositionalValue(r, c, d1),
                                 -convertFromCellToPropositionalValue(r, c, d2)
@@ -49,17 +60,17 @@ public class SudokuCnfEncoder {
         }
     }
 
-    private static void addRowConstraints(List<int[]> cnf) {
-        for (int r = 1; r <= 9; r++) {
-            for (int d = 1; d <= 9; d++) {
-                int[] clause = new int[9];
-                for (int c = 1; c <= 9; c++) {
+    private void addRowConstraints(List<int[]> cnf) {
+        for (int r = 1; r <= N; r++) {
+            for (int d = 1; d <= N; d++) {
+                int[] clause = new int[N];
+                for (int c = 1; c <= N; c++) {
                     clause[c - 1] = convertFromCellToPropositionalValue(r, c, d);
                 }
                 cnf.add(clause);
 
-                for (int c1 = 1; c1 <= 9; c1++) {
-                    for (int c2 = c1 + 1; c2 <= 9; c2++) {
+                for (int c1 = 1; c1 <= N; c1++) {
+                    for (int c2 = c1 + 1; c2 <= N; c2++) {
                         cnf.add(new int[]{
                                 -convertFromCellToPropositionalValue(r, c1, d),
                                 -convertFromCellToPropositionalValue(r, c2, d)
@@ -70,17 +81,17 @@ public class SudokuCnfEncoder {
         }
     }
 
-    private static void addColumnConstraints(List<int[]> cnf) {
-        for (int c = 1; c <= 9; c++) {
-            for (int d = 1; d <= 9; d++) {
-                int[] clause = new int[9];
-                for (int r = 1; r <= 9; r++) {
+    private void addColumnConstraints(List<int[]> cnf) {
+        for (int c = 1; c <= N; c++) {
+            for (int d = 1; d <= N; d++) {
+                int[] clause = new int[N];
+                for (int r = 1; r <= N; r++) {
                     clause[r - 1] = convertFromCellToPropositionalValue(r, c, d);
                 }
                 cnf.add(clause);
 
-                for (int r1 = 1; r1 <= 9; r1++) {
-                    for (int r2 = r1 + 1; r2 <= 9; r2++) {
+                for (int r1 = 1; r1 <= N; r1++) {
+                    for (int r2 = r1 + 1; r2 <= N; r2++) {
                         cnf.add(new int[]{
                                 -convertFromCellToPropositionalValue(r1, c, d),
                                 -convertFromCellToPropositionalValue(r2, c, d)
@@ -91,16 +102,17 @@ public class SudokuCnfEncoder {
         }
     }
 
-    private static void addBoxConstraints(List<int[]> cnf) {
-        for (int boxRow = 0; boxRow < 3; boxRow++) {
-            for (int boxCol = 0; boxCol < 3; boxCol++) {
-                for (int d = 1; d <= 9; d++) {
+    private void addBoxConstraints(List<int[]> cnf) {
+        int boxSize = (int) Math.sqrt(N); // computed locally
+        for (int boxRow = 0; boxRow < boxSize; boxRow++) {
+            for (int boxCol = 0; boxCol < boxSize; boxCol++) {
+                for (int d = 1; d <= N; d++) {
                     List<Integer> literals = new ArrayList<>();
 
-                    for (int i = 1; i <= 3; i++) {
-                        for (int j = 1; j <= 3; j++) {
-                            int r = boxRow * 3 + i;
-                            int c = boxCol * 3 + j;
+                    for (int i = 1; i <= boxSize; i++) {
+                        for (int j = 1; j <= boxSize; j++) {
+                            int r = boxRow * boxSize + i;
+                            int c = boxCol * boxSize + j;
                             literals.add(convertFromCellToPropositionalValue(r, c, d));
                         }
                     }
@@ -120,12 +132,9 @@ public class SudokuCnfEncoder {
         }
     }
 
-    /**
-     *  Adds unit clauses for pre-filled cells (clues) from the board.
-     */
-    private static void addClueConstraints(List<int[]> cnf, int[][] board) {
-        for (int r = 0; r < 9; r++) {
-            for (int c = 0; c < 9; c++) {
+    private void addClueConstraints(List<int[]> cnf, int[][] board) {
+        for (int r = 0; r < N; r++) {
+            for (int c = 0; c < N; c++) {
                 int d = board[r][c];
                 if (d != 0) {
                     int literal = convertFromCellToPropositionalValue(r + 1, c + 1, d);
@@ -135,4 +144,3 @@ public class SudokuCnfEncoder {
         }
     }
 }
-
