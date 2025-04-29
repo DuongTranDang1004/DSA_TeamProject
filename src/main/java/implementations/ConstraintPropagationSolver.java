@@ -161,17 +161,17 @@ public class ConstraintPropagationSolver {
     }
 
     public void printBoard() {
-        int boxSize = (int) Math.sqrt(N);
-        for (int i = 0; i < N; i++) {
-            if (i % boxSize == 0 && i != 0) {
-                System.out.println("-".repeat(N * 2 + boxSize - 1));
-            }
-            for (int j = 0; j < N; j++) {
-                if (j % boxSize == 0 && j != 0) System.out.print("| ");
-                System.out.print(sudoku[i][j] == 0 ? ". " : sudoku[i][j] + " ");
-            }
-            System.out.println();
-        }
+        // int boxSize = (int) Math.sqrt(N);
+        // for (int i = 0; i < N; i++) {
+        //     if (i % boxSize == 0 && i != 0) {
+        //         System.out.println("-".repeat(N * 2 + boxSize - 1));
+        //     }
+        //     for (int j = 0; j < N; j++) {
+        //         if (j % boxSize == 0 && j != 0) System.out.print("| ");
+        //         System.out.print(sudoku[i][j] == 0 ? ". " : sudoku[i][j] + " ");
+        //     }
+        //     System.out.println();
+        // }
     }
 
     private boolean isValidBoard(int[][] board) {
