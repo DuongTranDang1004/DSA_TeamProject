@@ -1,12 +1,15 @@
-
 package implementations;
 
 import java.util.ArrayList;
-
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+/**
+ * Encodes an N×N Sudoku into CNF clauses for a SAT solver.
+ * Variables: v(r,c,d) = (r−1)*N*N + (c−1)*N + d
+ */
 public class SudokuCnfEncoder {
-
     private final int N;
 
     public SudokuCnfEncoder(int N) {
@@ -16,131 +19,89 @@ public class SudokuCnfEncoder {
         this.N = N;
     }
 
-    private int convertFromCellToPropositionalValue(int r, int c, int d) {
-        return 100 * r + 10 * c + d;
+    private int var(int r, int c, int d) {
+        return (r - 1) * N * N + (c - 1) * N + d;
     }
 
     public int[][] encodeSudoku(int[][] board) {
         List<int[]> clauses = new ArrayList<>();
-
         addCellConstraints(clauses);
-        addCellUniquenessConstraints(clauses);
+        addUniquenessConstraints(clauses);
         addRowConstraints(clauses);
         addColumnConstraints(clauses);
         addBoxConstraints(clauses);
         addClueConstraints(clauses, board);
-
         return clauses.toArray(new int[0][]);
     }
 
-    private void addCellConstraints(List<int[]> cnf) {
-        for (int r = 1; r <= N; r++) {
+    private void addCellConstraints(List<int[]> C) {
+        // mỗi ô phải có ít nhất một giá trị
+        for (int r = 1; r <= N; r++)
             for (int c = 1; c <= N; c++) {
-                int[] clause = new int[N];
-                for (int d = 1; d <= N; d++) {
-                    clause[d - 1] = convertFromCellToPropositionalValue(r, c, d);
-                }
-                cnf.add(clause);
+                int[] cl = new int[N];
+                for (int d = 1; d <= N; d++) cl[d - 1] = var(r, c, d);
+                C.add(cl);
             }
-        }
     }
 
-    private void addCellUniquenessConstraints(List<int[]> cnf) {
-        for (int r = 1; r <= N; r++) {
-            for (int c = 1; c <= N; c++) {
-                for (int d1 = 1; d1 <= N; d1++) {
-                    for (int d2 = d1 + 1; d2 <= N; d2++) {
-                        cnf.add(new int[]{
-                                -convertFromCellToPropositionalValue(r, c, d1),
-                                -convertFromCellToPropositionalValue(r, c, d2)
-                        });
-                    }
-                }
-            }
-        }
+    private void addUniquenessConstraints(List<int[]> C) {
+        // mỗi ô chỉ có một giá trị
+        for (int r = 1; r <= N; r++)
+            for (int c = 1; c <= N; c++)
+                for (int d1 = 1; d1 <= N; d1++)
+                    for (int d2 = d1 + 1; d2 <= N; d2++)
+                        C.add(new int[]{-var(r, c, d1), -var(r, c, d2)});
     }
 
-    private void addRowConstraints(List<int[]> cnf) {
-        for (int r = 1; r <= N; r++) {
+    private void addRowConstraints(List<int[]> C) {
+        // mỗi hàng phải có mỗi số đúng 1 lần
+        for (int r = 1; r <= N; r++)
             for (int d = 1; d <= N; d++) {
-                int[] clause = new int[N];
-                for (int c = 1; c <= N; c++) {
-                    clause[c - 1] = convertFromCellToPropositionalValue(r, c, d);
-                }
-                cnf.add(clause);
-
-                for (int c1 = 1; c1 <= N; c1++) {
-                    for (int c2 = c1 + 1; c2 <= N; c2++) {
-                        cnf.add(new int[]{
-                                -convertFromCellToPropositionalValue(r, c1, d),
-                                -convertFromCellToPropositionalValue(r, c2, d)
-                        });
-                    }
-                }
+                int[] cl = new int[N];
+                for (int c = 1; c <= N; c++) cl[c - 1] = var(r, c, d);
+                C.add(cl);
+                for (int c1 = 1; c1 <= N; c1++)
+                    for (int c2 = c1 + 1; c2 <= N; c2++)
+                        C.add(new int[]{-var(r, c1, d), -var(r, c2, d)});
             }
-        }
     }
 
-    private void addColumnConstraints(List<int[]> cnf) {
-        for (int c = 1; c <= N; c++) {
+    private void addColumnConstraints(List<int[]> C) {
+        // mỗi cột phải có mỗi số đúng 1 lần
+        for (int c = 1; c <= N; c++)
             for (int d = 1; d <= N; d++) {
-                int[] clause = new int[N];
-                for (int r = 1; r <= N; r++) {
-                    clause[r - 1] = convertFromCellToPropositionalValue(r, c, d);
-                }
-                cnf.add(clause);
-
-                for (int r1 = 1; r1 <= N; r1++) {
-                    for (int r2 = r1 + 1; r2 <= N; r2++) {
-                        cnf.add(new int[]{
-                                -convertFromCellToPropositionalValue(r1, c, d),
-                                -convertFromCellToPropositionalValue(r2, c, d)
-                        });
-                    }
-                }
+                int[] cl = new int[N];
+                for (int r = 1; r <= N; r++) cl[r - 1] = var(r, c, d);
+                C.add(cl);
+                for (int r1 = 1; r1 <= N; r1++)
+                    for (int r2 = r1 + 1; r2 <= N; r2++)
+                        C.add(new int[]{-var(r1, c, d), -var(r2, c, d)});
             }
-        }
     }
 
-    private void addBoxConstraints(List<int[]> cnf) {
-        int boxSize = (int) Math.sqrt(N); // computed locally
-        for (int boxRow = 0; boxRow < boxSize; boxRow++) {
-            for (int boxCol = 0; boxCol < boxSize; boxCol++) {
+    private void addBoxConstraints(List<int[]> C) {
+        int b = (int) Math.sqrt(N);
+        for (int br = 0; br < b; br++)
+            for (int bc = 0; bc < b; bc++)
                 for (int d = 1; d <= N; d++) {
-                    List<Integer> literals = new ArrayList<>();
-
-                    for (int i = 1; i <= boxSize; i++) {
-                        for (int j = 1; j <= boxSize; j++) {
-                            int r = boxRow * boxSize + i;
-                            int c = boxCol * boxSize + j;
-                            literals.add(convertFromCellToPropositionalValue(r, c, d));
-                        }
-                    }
-
-                    cnf.add(literals.stream().mapToInt(x -> x).toArray());
-
-                    for (int i = 0; i < literals.size(); i++) {
-                        for (int j = i + 1; j < literals.size(); j++) {
-                            cnf.add(new int[]{
-                                    -literals.get(i),
-                                    -literals.get(j)
-                            });
-                        }
-                    }
+                    List<Integer> lits = new ArrayList<>();
+                    for (int i = 1; i <= b; i++)
+                        for (int j = 1; j <= b; j++)
+                            lits.add(var(br*b + i, bc*b + j, d));
+                    C.add(lits.stream().mapToInt(x->x).toArray());
+                    for (int x = 0; x < lits.size(); x++)
+                        for (int y = x+1; y < lits.size(); y++)
+                            C.add(new int[]{-lits.get(x), -lits.get(y)});
                 }
-            }
-        }
     }
 
-    private void addClueConstraints(List<int[]> cnf, int[][] board) {
-        for (int r = 0; r < N; r++) {
+    private void addClueConstraints(List<int[]> C, int[][] board) {
+        // các giá trị đã cho
+        for (int r = 0; r < N; r++)
             for (int c = 0; c < N; c++) {
                 int d = board[r][c];
-                if (d != 0) {
-                    int literal = convertFromCellToPropositionalValue(r + 1, c + 1, d);
-                    cnf.add(new int[]{literal});
-                }
+                if (d > 0) C.add(new int[]{var(r+1, c+1, d)});
             }
-        }
     }
 }
+
