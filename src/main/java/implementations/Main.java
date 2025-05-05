@@ -213,11 +213,25 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        long memBeforeInit = getUsedMemory();
+        long initStartTime = System.currentTimeMillis();
+
         int[][][] puzzles = PuzzleBank.getPuzzles();
         if (puzzles.length == 0) {
             System.out.println("No puzzles found.");
             return;
         }
+
+        long initEndTime = System.currentTimeMillis();
+        long memAfterInit = getUsedMemory();
+        long initializationTime = initEndTime - initStartTime;
+        long initializationMemoryCost = memAfterInit - memBeforeInit;
+
+        System.out.println("=====================================");
+        System.out.println("Initialization time: " + initializationTime + " ms");
+        System.out.println("Initialization memory cost: " + initializationMemoryCost + " bytes");
+        System.out.println("Initial memory footprint before solving: " + memAfterInit + " bytes");
+        System.out.println("=====================================");
 
         List<String[]> records = new ArrayList<>();
         records.add(new String[]{
