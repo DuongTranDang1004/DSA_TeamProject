@@ -3,130 +3,130 @@ package implementations;
 import java.util.*;
 
 public class DPLLSATSolver {
-    private final int N;
-    private final int MAX_DEPTH;
-    private final Map<Integer,Boolean> assignment = new HashMap<>();
-    private int propagationDepth = 0;
-    private int numberOfGuesses  = 0;
+    private final int size;
+    private final int maxRecursionDepth;
+    private final Map<Integer, Boolean> variableAssignments = new HashMap<>();
+    private int maxPropagationDepth = 0;
+    private int totalGuessCount = 0;
 
-    public DPLLSATSolver(int N) {
-        int s = (int)Math.sqrt(N);
-        if (s*s != N) {
-            throw new IllegalArgumentException("N phải là số chính phương (9,16,25…) nhưng N=" + N);
+    public DPLLSATSolver(int size) {
+        int root = (int) Math.sqrt(size);
+        if (root * root != size) {
+            throw new IllegalArgumentException("N must be a perfect square (e.g., 9, 16, 25), but got: " + size);
         }
-        this.N = N;
-        this.MAX_DEPTH = N*N*N;
+        this.size = size;
+        this.maxRecursionDepth = size * size * size;
     }
 
     public int[][] solve(int[][] board) {
-        if (board.length != N || board[0].length != N) return null;
-        SudokuCnfEncoder enc = new SudokuCnfEncoder(N);
-        int[][] clauses = enc.encodeSudoku(board);
+        if (board.length != size || board[0].length != size) return null;
 
-        assignment.clear();
-        propagationDepth = 0;
-        numberOfGuesses  = 0;
+        SudokuCnfEncoder encoder = new SudokuCnfEncoder(size);
+        int[][] cnfClauses = encoder.encodeSudoku(board);
 
-        boolean sat = dpll(clauses, 0);
-        return sat ? decode() : null;
+        variableAssignments.clear();
+        maxPropagationDepth = 0;
+        totalGuessCount = 0;
+
+        boolean satisfiable = runDPLL(cnfClauses, 0);
+        return satisfiable ? decodeAssignmentsToBoard() : null;
     }
 
-    private boolean dpll(int[][] C, int depth) {
-        if (depth > MAX_DEPTH) return false;
-        propagationDepth = Math.max(propagationDepth, depth);
+    private boolean runDPLL(int[][] clauses, int currentDepth) {
+        if (currentDepth > maxRecursionDepth) return false;
+        maxPropagationDepth = Math.max(maxPropagationDepth, currentDepth);
 
-        if (C.length == 0) return true;
-        for (int[] cl : C) if (cl.length == 0) return false;
+        if (clauses.length == 0) return true;
+        for (int[] clause : clauses) {
+            if (clause.length == 0) return false;}
 
-        Integer unit = findUnit(C);
-        if (unit != null) {
-            assign(unit);
-            boolean ok = dpll(simplify(C, unit), depth + 1);
-            if (!ok) unassign(unit);
-            return ok;
+        Integer unitLiteral = findUnitClause(clauses);
+        if (unitLiteral != null) {
+            assignLiteral(unitLiteral);
+            boolean result = runDPLL(simplifyClauses(clauses, unitLiteral), currentDepth + 1);
+            if (!result) unassignLiteral(unitLiteral);
+            return result;
         }
 
-        Integer lit = chooseLiteral(C);
-        if (lit == null) return true;
+        Integer chosenLiteral = chooseUnassignedLiteral(clauses);
+        if (chosenLiteral == null) return true;
 
-        numberOfGuesses++;
-        assign(lit);
-        if (dpll(simplify(C, lit), depth + 1)) return true;
-        unassign(lit);
+        totalGuessCount++;
+        assignLiteral(chosenLiteral);
+        if (runDPLL(simplifyClauses(clauses, chosenLiteral), currentDepth + 1)) return true;
+        unassignLiteral(chosenLiteral);
 
-        assign(-lit);
-        if (dpll(simplify(C, -lit), depth + 1)) return true;
-        unassign(lit);
+        assignLiteral(-chosenLiteral);
+        if (runDPLL(simplifyClauses(clauses, -chosenLiteral), currentDepth + 1)) return true;
+        unassignLiteral(chosenLiteral);
 
         return false;
     }
 
-    private Integer findUnit(int[][] C) {
-        for (int[] cl : C) {
-            if (cl.length == 1) return cl[0];
+    private Integer findUnitClause(int[][] clauses) {
+        for (int[] clause : clauses) {
+            if (clause.length == 1) return clause[0];
         }
         return null;
     }
 
-    private Integer chooseLiteral(int[][] C) {
-        for (int[] cl : C) {
-            for (int lit : cl) {
-                if (!assignment.containsKey(Math.abs(lit))) {
-                    return lit;
+    private Integer chooseUnassignedLiteral(int[][] clauses) {
+        for (int[] clause : clauses) {
+            for (int literal : clause) {
+                if (!variableAssignments.containsKey(Math.abs(literal))) {
+                    return literal;
                 }
             }
         }
         return null;
     }
 
-    private void assign(int lit)   { assignment.put(Math.abs(lit), lit > 0); }
-    private void unassign(int lit) { assignment.remove(Math.abs(lit)); }
+    private void assignLiteral(int literal) {
+        variableAssignments.put(Math.abs(literal), literal > 0);}
 
-    /**  
-     * Simplify CNF C by setting lit=true:  
-     *  - loại bỏ mọi clause chứa lit  
-     *  - trong các clause còn lại, remove -lit  
-     */
-    private int[][] simplify(int[][] C, int lit) {
-        List<int[]> out = new ArrayList<>(C.length);
-        for (int[] cl : C) {
-            boolean sat = false;
-            // nếu clause chứa lit → bỏ hẳn
-            for (int x : cl) {
-                if (x == lit) { sat = true; break; }
-            }
-            if (sat) continue;
-
-            // còn lại thì đếm size mới = số literal != -lit
-            int cnt = 0;
-            for (int x : cl) {
-                if (x != -lit) cnt++;
-            }
-            // build clause mới
-            int[] newCl = new int[cnt];
-            int idx = 0;
-            for (int x : cl) {
-                if (x != -lit) newCl[idx++] = x;
-            }
-            out.add(newCl);
-        }
-        return out.toArray(new int[out.size()][]);
+    private void unassignLiteral(int literal) {
+        variableAssignments.remove(Math.abs(literal));
     }
 
-    /** decode assignment → board */
-    private int[][] decode() {
-        int[][] res = new int[N][N];
-        for (Map.Entry<Integer,Boolean> e : assignment.entrySet()) {
-            if (!e.getValue()) continue;
-            int v = e.getKey() - 1;
-            int d = v % N + 1;
-            int c = (v / N) % N + 1;
-            int r = v / (N*N) + 1;
-            res[r-1][c-1] = d;
-        }
-        return res;
+    private int[][] simplifyClauses(int[][] clauses, int literal) {
+        List<int[]> simplified = new ArrayList<>(clauses.length);
+        for (int[] clause : clauses) {
+            boolean isSatisfied = false;
+            for (int l : clause) {
+                if (l == literal) {
+                    isSatisfied = true;
+                    break; }}
+            if (isSatisfied) continue;
+            int count = 0;
+            for (int l : clause) {
+                if (l != -literal) count++;  }
+            int[] newClause = new int[count];
+            int index = 0;
+            for (int l : clause) {
+                if (l != -literal) newClause[index++] = l;  }
+            simplified.add(newClause);  }
+        return simplified.toArray(new int[0][]);
     }
 
-    public int getPropagationDepth() { return propagationDepth; }
-    public int getNumberOfGuesses()   { return numberOfGuesses; }
+    private int[][] decodeAssignmentsToBoard() {
+        int[][] resultBoard = new int[size][size];
+        for (Map.Entry<Integer, Boolean> entry : variableAssignments.entrySet()) {
+            if (!entry.getValue()) continue;
+
+            int var = entry.getKey() - 1;
+            int digit = var % size + 1;
+            int col = (var / size) % size + 1;
+            int row = var / (size * size) + 1;
+            resultBoard[row - 1][col - 1] = digit;
+        }
+        return resultBoard;
+    }
+
+    public int getPropagationDepth() {
+        return maxPropagationDepth;
+    }
+
+    public int getNumberOfGuesses() {
+        return totalGuessCount;
+    }
 }
