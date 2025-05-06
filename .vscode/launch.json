@@ -1,0 +1,47 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}",
+            "vmArgs": "-Xss4m -Xmx4g"
+        },
+        {
+            "type": "java",
+            "name": "NormalSudoku9x9",
+            "request": "launch",
+            "mainClass": "datasets.NormalSudoku9x9",
+            "projectName": "DSA_TeamProject_Main",
+            "vmArgs": "-Xss4m -Xmx4g"
+        },
+        {
+            "type": "java",
+            "name": "NormalSudokuLargeGrids",
+            "request": "launch",
+            "mainClass": "datasets.NormalSudokuLargeGrids",
+            "projectName": "DSA_TeamProject_Main",
+            "vmArgs": "-Xss4m -Xmx4g"
+        },
+        {
+            "type": "java",
+            "name": "VeryHardSudoku",
+            "request": "launch",
+            "mainClass": "datasets.VeryHardSudoku",
+            "projectName": "DSA_TeamProject_Main",
+            "vmArgs": "-Xss4m -Xmx4g"
+        },
+        {
+            "type": "java",
+            "name": "Main",
+            "request": "launch",
+            "mainClass": "implementations.Main",
+            "projectName": "DSA_TeamProject_Main",
+            "vmArgs": "-Xss4m -Xmx4g"
+        }
+    ]
+}

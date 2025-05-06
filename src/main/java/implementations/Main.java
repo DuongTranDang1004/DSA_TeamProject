@@ -1,9 +1,10 @@
-
 package implementations;
 
 import datasets.PuzzleBank;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
 import java.util.*;
 
 public class Main {
@@ -12,8 +13,8 @@ public class Main {
     private static volatile boolean monitoring = false;
 
     public static long getUsedMemory() {
-        Runtime runtime = Runtime.getRuntime();
-        return runtime.totalMemory() - runtime.freeMemory();
+        MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
+        return memoryBean.getHeapMemoryUsage().getUsed();
     }
 
     public static void startMemoryMonitor() {
@@ -137,15 +138,13 @@ public class Main {
         return true;
     }
 
-    public static SolveResult solveAndBenchmark(String puzzleName, PuzzleInfo info, String solverName) {
+    public static SolveResult solveAndBenchmark(String puzzleName, PuzzleInfo info, String solverName, long timeout) {
         long[] times = new long[5];
         boolean solved = false;
         int numberOfGuesses = 0;
         int propagationDepth = 0;
         int[][] firstSolvedBoard = null;
         long recordedPeakMemory = 0;
-
-        long timeout = solverName.equals("Backtracking") ? 180_000 : 120_000;
 
         for (int attempt = 0; attempt < 5; attempt++) {
             int[][] copy = deepCopy(info.puzzle);
@@ -213,25 +212,11 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        long memBeforeInit = getUsedMemory();
-        long initStartTime = System.currentTimeMillis();
-
         int[][][] puzzles = PuzzleBank.getPuzzles();
         if (puzzles.length == 0) {
             System.out.println("No puzzles found.");
             return;
         }
-
-        long initEndTime = System.currentTimeMillis();
-        long memAfterInit = getUsedMemory();
-        long initializationTime = initEndTime - initStartTime;
-        long initializationMemoryCost = memAfterInit - memBeforeInit;
-
-        System.out.println("=====================================");
-        System.out.println("Initialization time: " + initializationTime + " ms");
-        System.out.println("Initialization memory cost: " + initializationMemoryCost + " bytes");
-        System.out.println("Initial memory footprint before solving: " + memAfterInit + " bytes");
-        System.out.println("=====================================");
 
         List<String[]> records = new ArrayList<>();
         records.add(new String[]{
@@ -239,17 +224,31 @@ public class Main {
             "Run1(ms)", "Run2(ms)", "Run3(ms)", "Run4(ms)", "Run5(ms)",
             "BestTime(ms)", "WorstTime(ms)", "AverageTime(ms)",
             "NumberOfGuesses", "PropagationDepth", "PeakMemory(bytes)",
-            "OriginalPuzzle", "Solution"
+            "OriginalPuzzle", "Solution",
+            "InitStartTime(ms)", "InitEndTime(ms)", "InitTime(μs)", "InitMemCost(bytes)"
         });
 
         int index = 1;
         for (int[][] puzzle : puzzles) {
-            PuzzleInfo info = new PuzzleInfo(puzzle);
+
             String puzzleName = "Puzzle_" + index++;
 
             for (String solver : List.of("Backtracking", "ConstraintPropagation", "DPLLSAT", "DLX")) {
+
                 System.out.println("Solving " + puzzleName + " with " + solver + "...");
-                SolveResult result = solveAndBenchmark(puzzleName, info, solver);
+
+                long initStartTime = System.nanoTime();
+                long memBeforeInit = getUsedMemory();
+
+                PuzzleInfo info = new PuzzleInfo(puzzle);
+
+                long initEndTime = System.nanoTime();
+                long memAfterInit = getUsedMemory();
+                long initializationTime = (initEndTime - initStartTime) / 1_000;
+                long initializationMemoryCost = Math.max(memAfterInit - memBeforeInit, 1);
+
+                long timeout = solver.equals("Backtracking") ? 180_000 : 120_000;
+                SolveResult result = solveAndBenchmark(puzzleName, info, solver, timeout);
 
                 long best = Arrays.stream(result.times).min().orElse(0);
                 long worst = Arrays.stream(result.times).max().orElse(0);
@@ -273,17 +272,21 @@ public class Main {
                     result.solved ? String.valueOf(result.propagationDepth) : "N/A",
                     String.valueOf(result.peakMemory),
                     boardToString(info.puzzle),
-                    result.solved && result.solvedBoard != null ? boardToString(result.solvedBoard) : "N/A"
+                    result.solved && result.solvedBoard != null ? boardToString(result.solvedBoard) : "N/A",
+                    String.valueOf(initStartTime),
+                    String.valueOf(initEndTime),
+                    String.valueOf(initializationTime),
+                    String.valueOf(initializationMemoryCost)
                 });
             }
         }
 
-        try (FileWriter writer = new FileWriter("puzzle_result_extra.csv", false)) {
+        try (FileWriter writer = new FileWriter("puzzle_result_extra_25x25.csv", false)) {
             for (String[] record : records) {
                 writer.write(String.join(",", record));
                 writer.write("\n");
             }
-            System.out.println("Results saved to puzzle_result.csv");
+            System.out.println("Results saved to puzzle_result_extra.csv");
         } catch (IOException e) {
             System.out.println("Error writing CSV: " + e.getMessage());
         }
