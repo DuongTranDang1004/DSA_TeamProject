@@ -1,0 +1,9 @@
+implementations\DLXSolver$DLXHeader.class
+implementations\Main$PuzzleInfo.class
+implementations\Main$SolveResult.class
+implementations\DLXSolver.class
+implementations\ConstraintPropagationSolver.class
+implementations\DLXSolver$ColumnHeader.class
+implementations\Main.class
+implementations\DLXSolver$DLXNode.class
+implementations\SudokuCnfEncoder.class

@@ -2,26 +2,35 @@ package implementations;
 
 import java.util.*;
 
+/*
+ * ============================================
+ *       DPLLSATSolver Class
+ * ============================================
+ * User For: Solving Sudoku using the DPLL SAT solver, which uses Boolean satisfiability to find a solution.
+ * Written By: Group 1 in @RMIT - 2025 for Group Project of COSC2469 Algorithm And Analysis Course
+ * ============================================
+ */
+
 public class DPLLSATSolver {
-    private final int size;
+    private final int N;
     private final int maxRecursionDepth;
     private final Map<Integer, Boolean> variableAssignments = new HashMap<>();
     private int maxPropagationDepth = 0;
     private int totalGuessCount = 0;
 
-    public DPLLSATSolver(int size) {
-        int root = (int) Math.sqrt(size);
-        if (root * root != size) {
-            throw new IllegalArgumentException("N must be a perfect square (e.g., 9, 16, 25), but got: " + size);
+    public DPLLSATSolver(int N) {
+        int root = (int) Math.sqrt(N);
+        if (root * root != N) {
+            throw new IllegalArgumentException("Board must be " + N + "x" + N + " and contain values from 0 to " + N);
         }
-        this.size = size;
-        this.maxRecursionDepth = size * size * size;
+        this.N = N;
+        this.maxRecursionDepth = N * N * N;
     }
 
     public int[][] solve(int[][] board) {
-        if (board.length != size || board[0].length != size) return null;
+        if (board.length != N || board[0].length != N) return null;
 
-        SudokuCnfEncoder encoder = new SudokuCnfEncoder(size);
+        SudokuCnfEncoder encoder = new SudokuCnfEncoder(N);
         int[][] cnfClauses = encoder.encodeSudoku(board);
 
         variableAssignments.clear();
@@ -37,8 +46,6 @@ public class DPLLSATSolver {
         maxPropagationDepth = Math.max(maxPropagationDepth, currentDepth);
 
         if (clauses.length == 0) return true;
-        for (int[] clause : clauses) {
-            if (clause.length == 0) return false;}
 
         Integer unitLiteral = findUnitClause(clauses);
         if (unitLiteral != null) {
@@ -82,7 +89,8 @@ public class DPLLSATSolver {
     }
 
     private void assignLiteral(int literal) {
-        variableAssignments.put(Math.abs(literal), literal > 0);}
+        variableAssignments.put(Math.abs(literal), literal > 0);
+    }
 
     private void unassignLiteral(int literal) {
         variableAssignments.remove(Math.abs(literal));
@@ -95,28 +103,35 @@ public class DPLLSATSolver {
             for (int l : clause) {
                 if (l == literal) {
                     isSatisfied = true;
-                    break; }}
+                    break;
+                }
+            }
             if (isSatisfied) continue;
+
             int count = 0;
             for (int l : clause) {
-                if (l != -literal) count++;  }
+                if (l != -literal) count++;
+            }
+
             int[] newClause = new int[count];
             int index = 0;
             for (int l : clause) {
-                if (l != -literal) newClause[index++] = l;  }
-            simplified.add(newClause);  }
+                if (l != -literal) newClause[index++] = l;
+            }
+            simplified.add(newClause);
+        }
         return simplified.toArray(new int[0][]);
     }
 
     private int[][] decodeAssignmentsToBoard() {
-        int[][] resultBoard = new int[size][size];
+        int[][] resultBoard = new int[N][N];
         for (Map.Entry<Integer, Boolean> entry : variableAssignments.entrySet()) {
             if (!entry.getValue()) continue;
 
             int var = entry.getKey() - 1;
-            int digit = var % size + 1;
-            int col = (var / size) % size + 1;
-            int row = var / (size * size) + 1;
+            int digit = var % N + 1;
+            int col = (var / N) % N + 1;
+            int row = var / (N * N) + 1;
             resultBoard[row - 1][col - 1] = digit;
         }
         return resultBoard;

@@ -3,13 +3,22 @@ package implementations;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+ * ============================================
+ *       SudokuCnfEncoder Class
+ * ============================================
+ * User For: Transforming Sudoku into a form suitable for SAT solvers to process and solve.
+ * Written By: Group 1 in @RMIT - 2025 for Group Project of COSC2469 Algorithm And Analysis Course
+ * ============================================
+ */
+
 public class SudokuCnfEncoder {
     private final int N, blockH, blockW;
 
     public SudokuCnfEncoder(int N) {
         int s = (int) Math.sqrt(N);
         if (s * s != N) {
-            throw new IllegalArgumentException("N phải là số chính phương (9,16,25,…) nhưng N=" + N);
+            throw new IllegalArgumentException("Board must be " + N + "x" + N + " and contain values from 0 to " + N);
         }
         this.N = N;
         this.blockH = s;

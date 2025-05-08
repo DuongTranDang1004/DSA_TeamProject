@@ -2,6 +2,15 @@ package implementations;
 
 import java.util.*;
 
+/*
+ * ============================================
+ *       DLXSolver Class
+ * ============================================
+ * User For: Solving Sudoku using Dancing Links (DLX), a highly efficient algorithm for exact cover problems.
+ * Written By: Group 1 in @RMIT - 2025 for Group Project of COSC2469 Algorithm And Analysis Course
+ * ============================================
+ */
+
 public class DLXSolver {
     private final int N;
     private final int CONSTRAINTS;
@@ -112,7 +121,7 @@ public class DLXSolver {
 
     public int[][] solve(int[][] board) {
         if (!isValidBoard(board)) {
-            throw new IllegalArgumentException("Invalid Sudoku board: must be " + N + "x" + N + " and only contain values from 0 to " + N);
+            throw new IllegalArgumentException("Board must be " + N + "x" + N + " and contain values from 0 to " + N);
         }
 
         List<DLXNode> preset = new ArrayList<>();
@@ -126,7 +135,6 @@ public class DLXSolver {
             solution.add(node);
         }
 
-        // ➡️ RESET lại biến đếm
         propagationDepth = 0;
         numberOfGuesses = 0;
 
@@ -188,7 +196,7 @@ public class DLXSolver {
                 n = n.right;
             } while (n != row);
 
-            numberOfGuesses++; // ➡️ mỗi lần chọn dòng là 1 lần thử chọn.
+            numberOfGuesses++; 
 
             solution.add(n);
             for (DLXNode j = row.right; j != row; j = j.right) cover(j.column);
@@ -216,20 +224,6 @@ public class DLXSolver {
         return best;
     }
 
-    public void printBoard(int[][] board) {
-        // int boxSize = (int) Math.sqrt(N);
-        // for (int i = 0; i < N; i++) {
-        //     if (i % boxSize == 0 && i != 0) {
-        //         System.out.println("-".repeat(N * 2 + boxSize - 1));
-        //     }
-        //     for (int j = 0; j < N; j++) {
-        //         if (j % boxSize == 0 && j != 0) System.out.print("| ");
-        //         System.out.print(board[i][j] == 0 ? ". " : board[i][j] + " ");
-        //     }
-        //     System.out.println();
-        // }
-    }
-
     public int[][] decodeSolution(List<DLXNode> solution) {
         int[][] board = new int[N][N];
         for (DLXNode node : solution) {
@@ -253,7 +247,6 @@ public class DLXSolver {
         return board;
     }
 
-    // ➡️ Getter để lấy thông số
     public int getPropagationDepth() {
         return propagationDepth;
     }

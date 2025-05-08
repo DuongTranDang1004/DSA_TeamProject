@@ -2,18 +2,25 @@ package implementations;
 
 import java.util.*;
 
+/*
+ * ============================================
+ *       ConstraintPropagationSolver Class
+ * ============================================
+ * User For: Solving Sudoku by propagating constraints to reduce possible values for each cell.
+ * Written By: Group 1 in @RMIT - 2025 for Group Project of COSC2469 Algorithm And Analysis Course
+ * ============================================
+ */
+
 public class ConstraintPropagationSolver {
     private final int N;
+    private int[][] sudoku;
+    private Map<Integer, Set<Integer>> rowConstraints = new HashMap<>();
+    private Map<Integer, Set<Integer>> colConstraints = new HashMap<>();
+    private Map<Integer, Set<Integer>> boxConstraints = new HashMap<>();
+    private Map<String, Set<Integer>> domain = new HashMap<>();
 
-    public int[][] sudoku;
-    public Map<Integer, Set<Integer>> rowConstraints = new HashMap<>();
-    public Map<Integer, Set<Integer>> colConstraints = new HashMap<>();
-    public Map<Integer, Set<Integer>> boxConstraints = new HashMap<>();
-    public Map<String, Set<Integer>> domain = new HashMap<>();
-
-    // ➡️ MỚI THÊM: thống kê depth và guesses
-    public int propagationDepth = 0;
-    public int numberOfGuesses = 0;
+    private int propagationDepth = 0;
+    private int numberOfGuesses = 0;
 
     public ConstraintPropagationSolver(int N) {
         if (Math.sqrt(N) != (int) Math.sqrt(N)) {
@@ -58,8 +65,8 @@ public class ConstraintPropagationSolver {
         }
 
         this.sudoku = sudoku;
-        this.propagationDepth = 0; // ➡️ reset
-        this.numberOfGuesses = 0;  // ➡️ reset
+        this.propagationDepth = 0;
+        this.numberOfGuesses = 0;
 
         for (int i = 0; i < N; i++) {
             rowConstraints.put(i, new HashSet<>());
@@ -69,16 +76,13 @@ public class ConstraintPropagationSolver {
 
         initializeConstraintsAndDomain();
 
-        if (backtrack(new HashMap<>(domain), 0)) { // ➡️ truyền depth ban đầu = 0
-            printBoard();
+        if (backtrack(new HashMap<>(domain), 0)) {
             return sudoku;
         } else {
-            System.out.println("No Solution Found");
             return null;
         }
     }
 
-    // ➡️ Thay đổi backtrack để đếm depth và guess
     public boolean backtrack(Map<String, Set<Integer>> currentDomain, int currentDepth) {
         int boxSize = (int) Math.sqrt(N);
 
@@ -96,7 +100,7 @@ public class ConstraintPropagationSolver {
         int col = Integer.parseInt(parts[1]);
 
         Set<Integer> valuesToTry = new HashSet<>(currentDomain.get(cell));
-        if (valuesToTry.size() > 1) numberOfGuesses++;  // ➡️ nếu có nhiều hơn 1 lựa chọn → ghi nhận 1 lần guess
+        if (valuesToTry.size() > 1) numberOfGuesses++;
 
         for (int value : valuesToTry) {
             if (rowConstraints.get(row).contains(value)
@@ -160,20 +164,6 @@ public class ConstraintPropagationSolver {
         return (row / boxSize) * boxSize + (col / boxSize);
     }
 
-    public void printBoard() {
-        // int boxSize = (int) Math.sqrt(N);
-        // for (int i = 0; i < N; i++) {
-        //     if (i % boxSize == 0 && i != 0) {
-        //         System.out.println("-".repeat(N * 2 + boxSize - 1));
-        //     }
-        //     for (int j = 0; j < N; j++) {
-        //         if (j % boxSize == 0 && j != 0) System.out.print("| ");
-        //         System.out.print(sudoku[i][j] == 0 ? ". " : sudoku[i][j] + " ");
-        //     }
-        //     System.out.println();
-        // }
-    }
-
     private boolean isValidBoard(int[][] board) {
         if (board == null || board.length != N) return false;
         for (int[] row : board) {
@@ -185,7 +175,6 @@ public class ConstraintPropagationSolver {
         return true;
     }
 
-    // ➡️ MỚI THÊM: Getter để Main.java lấy được
     public int getPropagationDepth() {
         return propagationDepth;
     }

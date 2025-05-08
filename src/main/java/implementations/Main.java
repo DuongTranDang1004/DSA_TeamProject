@@ -7,6 +7,16 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.util.*;
 
+/*
+ * ============================================
+ *       Main Class
+ * ============================================
+ * User For: Running, benchmarking, and comparing 
+ * Sudoku solvers, printing results, and saving them to a CSV file for analysis.
+ * Written By: Group 1 in @RMIT - 2025 for Group Project of COSC2469 Algorithm And Analysis Course
+ * ============================================
+ */
+
 public class Main {
 
     private static volatile long peakMemoryUsage = 0;
@@ -211,6 +221,24 @@ public class Main {
         return new SolveResult(solved, times, numberOfGuesses, propagationDepth, firstSolvedBoard, recordedPeakMemory);
     }
 
+    public static void printBoard(int[][] board) {
+        int N = board.length;
+        int boxSize = (int) Math.sqrt(N);
+
+        for (int i = 0; i < N; i++) {
+            if (i > 0 && i % boxSize == 0) {
+                System.out.println("-".repeat(N * 2 + boxSize - 1)); 
+            }
+            for (int j = 0; j < N; j++) {
+                if (j > 0 && j % boxSize == 0) {
+                    System.out.print("| "); 
+                }
+                System.out.print(board[i][j] == 0 ? ". " : board[i][j] + " ");  
+            }
+            System.out.println(); 
+        }
+    }
+
     public static void main(String[] args) {
         int[][][] puzzles = PuzzleBank.getPuzzles();
         if (puzzles.length == 0) {
@@ -230,11 +258,9 @@ public class Main {
 
         int index = 1;
         for (int[][] puzzle : puzzles) {
-
             String puzzleName = "Puzzle_" + index++;
 
             for (String solver : List.of("Backtracking", "ConstraintPropagation", "DPLLSAT", "DLX")) {
-
                 System.out.println("Solving " + puzzleName + " with " + solver + "...");
 
                 long initStartTime = System.nanoTime();
@@ -254,7 +280,7 @@ public class Main {
                 long worst = Arrays.stream(result.times).max().orElse(0);
                 long avg = (long) Arrays.stream(result.times).average().orElse(0);
 
-                records.add(new String[]{
+                records.add(new String[] {
                     puzzleName, solver,
                     result.solved ? "Yes" : "No",
                     String.valueOf(info.hintCount),
@@ -278,10 +304,14 @@ public class Main {
                     String.valueOf(initializationTime),
                     String.valueOf(initializationMemoryCost)
                 });
+
+                if (result.solved) {
+                    printBoard(result.solvedBoard);
+                }
             }
         }
 
-        try (FileWriter writer = new FileWriter("puzzle_result_extra_25x25.csv", false)) {
+        try (FileWriter writer = new FileWriter("puzzle_result.csv", false)) {
             for (String[] record : records) {
                 writer.write(String.join(",", record));
                 writer.write("\n");
