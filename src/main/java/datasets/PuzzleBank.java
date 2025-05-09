@@ -1,5 +1,7 @@
 package datasets;
 
+import java.util.Random;
+
 /*
  * ============================================
  *               PuzzleBank Class
@@ -1659,5 +1661,11 @@ public class PuzzleBank {
                 },      
 
         };
+    }
+
+     public static int[][] getRandomPuzzle() {
+        Random random = new Random();
+        int[][][] puzzles = getPuzzles();
+        return puzzles[random.nextInt(puzzles.length)];
     }
 }

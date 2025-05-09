@@ -3,5 +3,6 @@ D:\DSA_TeamProject\src\main\java\datasets\PuzzleBank.java
 D:\DSA_TeamProject\src\main\java\implementations\Main.java
 D:\DSA_TeamProject\src\main\java\implementations\ConstraintPropagationSolver.java
 D:\DSA_TeamProject\src\main\java\implementations\DPLLSATSolver.java
+D:\DSA_TeamProject\src\main\java\ui\SudokuSolverUI.java
 D:\DSA_TeamProject\src\main\java\implementations\SudokuCnfEncoder.java
 D:\DSA_TeamProject\src\main\java\implementations\BackTrackingSolver.java

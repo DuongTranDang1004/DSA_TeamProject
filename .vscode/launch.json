@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "SudokuSolverUI",
+            "request": "launch",
+            "mainClass": "ui.SudokuSolverUI",
+            "projectName": "DSA_TeamProject_Main"
+        },
+        {
+            "type": "java",
             "name": "Current File",
             "request": "launch",
             "mainClass": "${file}",
