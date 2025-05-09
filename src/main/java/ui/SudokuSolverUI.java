@@ -11,13 +11,21 @@ import javafx.stage.Stage;
 import javafx.scene.Node;
 import javafx.util.Duration;
 import datasets.PuzzleBank;
-import implementations.DLXSolver;
-import implementations.BackTrackingSolver;
-import implementations.ConstraintPropagationSolver;
-import implementations.DPLLSATSolver;
+import implementations.*;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
+
+/*
+ * ============================================
+ *       Sudoku Solver UI Class
+ * ============================================
+ * User For: Creating a graphical user interface (GUI) for interacting with and visualizing Sudoku solvers, including features for solving, visualizing steps, and benchmarking memory and time performance.
+ * Written By: Group 1 in @RMIT - 2025 for Group Project of COSC2469 Algorithm And Analysis Course
+ * ============================================
+ */
 
 public class SudokuSolverUI extends Application {
 
@@ -29,9 +37,50 @@ public class SudokuSolverUI extends Application {
     private Label statusLabel = new Label("Status: Ready");
     private List<int[][]> solvingSteps;
     private Timeline animationTimeline;
-    private double animationSpeed = 1000; // 1000ms per step
+    private double animationSpeed = 1000;
     private int currentStepIndex;
     private ScrollPane gridScrollPane = new ScrollPane();
+
+    private long initStartTime;
+    private long initEndTime;
+    private long initTime;
+    private long initMemCost;
+    private long solvingTime;
+    private int hintCount;
+
+    private long peakMemoryUsage = 0;
+    private boolean monitoring = false;
+
+    public long getUsedMemory() {
+        MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
+        return memoryBean.getHeapMemoryUsage().getUsed();
+    }
+
+    public void startMemoryMonitor() {
+        monitoring = true;
+        peakMemoryUsage = getUsedMemory();
+        Thread monitor = new Thread(() -> {
+            while (monitoring) {
+                long current = getUsedMemory();
+                if (current > peakMemoryUsage) {
+                    peakMemoryUsage = current;
+                }
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {}
+            }
+        });
+        monitor.setDaemon(true);
+        monitor.start();
+    }
+
+    public void stopMemoryMonitor() {
+        monitoring = false;
+    }
+
+    public long getPeakMemoryUsage() {
+        return peakMemoryUsage;
+    }
 
     public static void main(String[] args) {
         launch(args);
@@ -41,21 +90,17 @@ public class SudokuSolverUI extends Application {
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Sudoku Solver");
 
-        // Main layout
         VBox mainLayout = new VBox(10);
         mainLayout.setPadding(new Insets(15));
 
-        // Sections
         HBox inputSection = createInputSection();
         HBox optionsSection = createOptionsSection();
         HBox solverButtonsSection = createSolverButtonsSection();
         HBox animationControlsSection = createAnimationControlsSection();
         animationControlsSection.setVisible(false);
 
-        // Configure ScrollPane
         configureGridScrollPane();
 
-        // Assemble layout
         mainLayout.getChildren().addAll(
             inputSection,
             new Separator(),
@@ -66,7 +111,6 @@ public class SudokuSolverUI extends Application {
             animationControlsSection
         );
 
-        // Configure scene
         Scene scene = new Scene(mainLayout, 1000, 800);
         primaryStage.setScene(scene);
         primaryStage.setMinWidth(800);
@@ -161,11 +205,25 @@ public class SudokuSolverUI extends Application {
     }
 
     private void generateRandomPuzzle() {
+        long startTime = System.nanoTime();
         int[][] puzzle = PuzzleBank.getRandomPuzzle();
         originalPuzzle = copyPuzzle(puzzle);
         currentPuzzle = copyPuzzle(puzzle);
         previousStep = null;
         displayPuzzle(puzzle);
+
+        startMemoryMonitor();
+        initStartTime = System.nanoTime();
+
+        long initMemBefore = getUsedMemory();
+
+        initEndTime = System.nanoTime();
+        long initMemAfter = getUsedMemory();
+        initTime = (initEndTime - initStartTime) / 1_000;  
+        initMemCost = Math.max(initMemAfter - initMemBefore, 1);  
+
+        hintCount = countHints(puzzle);
+
         statusLabel.setText("Random puzzle generated");
     }
 
@@ -178,10 +236,9 @@ public class SudokuSolverUI extends Application {
         int size = (int) Math.sqrt(input.length());
         int expectedLength = size * size;
         if (expectedLength != input.length()) {
-            // Check if it's one digit short and pad if necessary
             int diff = expectedLength - input.length();
             if (diff == 1) {
-                input = input + "0"; // Pad with a 0
+                input = input + "0";  
                 size = (int) Math.sqrt(input.length());
                 statusLabel.setText("Input was one digit short; padded with a 0");
             } else {
@@ -206,29 +263,35 @@ public class SudokuSolverUI extends Application {
             }
         }
 
+        hintCount = countHints(currentPuzzle);
+
         displayPuzzle(currentPuzzle);
         statusLabel.setText("Puzzle submitted (" + size + "x" + size + ")");
     }
 
+    private int countHints(int[][] board) {
+        int count = 0;
+        for (int[] row : board)
+            for (int cell : row)
+                if (cell != 0) count++;
+        return count;
+    }
+
     private void displayPuzzle(int[][] puzzle) {
-        // Clear existing grid
         sudokuGrid.getChildren().clear();
         sudokuGrid.getColumnConstraints().clear();
         sudokuGrid.getRowConstraints().clear();
-        sudokuGrid.setGridLinesVisible(false); // We'll style borders manually
+        sudokuGrid.setGridLinesVisible(false);
 
         int size = puzzle.length;
         double maxCellSize = 60;
         double cellSize = Math.min(maxCellSize, 800.0 / size);
 
-        // Determine subgrid size (e.g., 3 for 9x9, 4 for 16x16, 5 for 25x25)
         int subgridSize = (int) Math.sqrt(size);
         if (subgridSize * subgridSize != size) {
-            // If not a perfect square (unlikely since input is validated), default to 3
             subgridSize = 3;
         }
 
-        // Set constraints for rows and columns
         for (int i = 0; i < size; i++) {
             ColumnConstraints colConstraints = new ColumnConstraints(cellSize);
             RowConstraints rowConstraints = new RowConstraints(cellSize);
@@ -236,27 +299,21 @@ public class SudokuSolverUI extends Application {
             sudokuGrid.getRowConstraints().add(rowConstraints);
         }
 
-        // Populate grid with cells
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 TextField cell = createSudokuCell(puzzle[row][col], originalPuzzle[row][col]);
-                // Apply thicker borders for subgrid boundaries
                 StringBuilder borderStyle = new StringBuilder();
-                // Top border
                 if (row % subgridSize == 0) {
                     borderStyle.append("-fx-border-width: 2 1 1 1; ");
                 } else {
                     borderStyle.append("-fx-border-width: 1 1 1 1; ");
                 }
-                // Left border
                 if (col % subgridSize == 0) {
                     borderStyle.append("-fx-border-width: ").append(row % subgridSize == 0 ? "2" : "1").append(" 1 1 2; ");
                 }
-                // Right border
                 if ((col + 1) % subgridSize == 0 && col != size - 1) {
                     borderStyle.append("-fx-border-width: ").append(row % subgridSize == 0 ? "2" : "1").append(" 2 1 ").append(col % subgridSize == 0 ? "2" : "1").append("; ");
                 }
-                // Bottom border
                 if ((row + 1) % subgridSize == 0 && row != size - 1) {
                     borderStyle.append("-fx-border-width: ").append(row % subgridSize == 0 ? "2" : "1").append(" ").append((col + 1) % subgridSize == 0 ? "2" : "1").append(" 2 ").append(col % subgridSize == 0 ? "2" : "1").append("; ");
                 }
@@ -286,11 +343,10 @@ public class SudokuSolverUI extends Application {
         if (isChanged) {
             String color = (value == 0 && previousStep != null &&
                           previousStep[GridPane.getRowIndex(cell)][GridPane.getColumnIndex(cell)] != 0)
-                          ? "orange" : "lightblue"; // Changed to lightblue for additions
+                          ? "orange" : "lightblue"; 
             cell.setStyle("-fx-background-color: " + color + "; -fx-font-weight: bold;" + baseStyle);
             new Timeline(new KeyFrame(Duration.millis(1500), e -> {
                 String currentStyle = cell.getStyle();
-                // Preserve border styles when resetting background
                 cell.setStyle((originalValue != 0 ? "-fx-font-weight: bold;" : "") + baseStyle +
                               currentStyle.substring(currentStyle.indexOf("-fx-border-width")));
             })).play();
@@ -299,7 +355,6 @@ public class SudokuSolverUI extends Application {
         }
     }
 
-    // Solver Methods
     private void solveWithBacktracking() {
         solvePuzzle("Backtracking");
     }
@@ -323,17 +378,25 @@ public class SudokuSolverUI extends Application {
         }
 
         statusLabel.setText("Solving with " + solverType + "...");
+
+        long startSolvingTime = System.nanoTime();
+
         if (visualizeSolvingSteps) {
             visualizeSteps(solverType);
         } else {
             solveAndDisplayPuzzle(solverType);
         }
+
+        solvingTime = (System.nanoTime() - startSolvingTime) / 1_000;  
     }
 
     private void solveAndDisplayPuzzle(String solverType) {
         int[][] solvedPuzzle = copyPuzzle(currentPuzzle);
+        long peakMemory = 0; 
+
         if (solverType.equals("Backtracking")) {
             BackTrackingSolver solver = new BackTrackingSolver(solvedPuzzle.length, false);
+            solver.setTimeoutMillis(120_000);
             solvedPuzzle = solver.solve(solvedPuzzle);
         } else if (solverType.equals("Constraint Propagation")) {
             ConstraintPropagationSolver solver = new ConstraintPropagationSolver(solvedPuzzle.length, false);
@@ -346,11 +409,14 @@ public class SudokuSolverUI extends Application {
             solvedPuzzle = solver.solve(solvedPuzzle);
         }
 
+        peakMemory = getPeakMemoryUsage();
+
         if (solvedPuzzle != null) {
             currentPuzzle = solvedPuzzle;
             previousStep = null;
             displayPuzzle(currentPuzzle);
-            statusLabel.setText("Solved with " + solverType);
+            statusLabel.setText("Solved with " + solverType + " (Memory: " + peakMemory + " bytes)" +
+                                "| Hint Count: "+ hintCount + " hints| Solving time: " + solvingTime + "μs | Init Time: " + initTime + "μs");
         } else {
             statusLabel.setText("Failed to solve with " + solverType);
         }

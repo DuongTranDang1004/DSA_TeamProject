@@ -22,8 +22,8 @@ public class ConstraintPropagationSolver {
     private int propagationDepth = 0;
     private int numberOfGuesses = 0;
     private boolean isRunningInUI = false;
-    private int stepCount = 0; // Step count for visualization
-    private List<int[][]> steps = new ArrayList<>(); // Store board state for each step
+    private int stepCount = 0; 
+    private List<int[][]> steps = new ArrayList<>(); 
 
     public ConstraintPropagationSolver(int N, boolean isRunningInUI) {
         if (Math.sqrt(N) != (int) Math.sqrt(N)) {
@@ -119,7 +119,7 @@ public class ConstraintPropagationSolver {
             boxConstraints.get(getBoxIndex(row, col, boxSize)).add(value);
 
             if (isRunningInUI) {
-                storeStep();  // Store the current state for visualization
+                storeStep(); 
             }
 
             Map<String, Set<Integer>> nextDomain = deepCopy(currentDomain);

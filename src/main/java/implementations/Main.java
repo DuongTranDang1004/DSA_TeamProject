@@ -201,7 +201,7 @@ public class Main {
                     solved = true;
                     if (attempt == 0) firstSolvedBoard = deepCopy(resultBoard);
                 } else {
-                    System.out.println("❌ Solver failed to return a valid solution.");
+                    System.out.println("Solver failed to return a valid solution.");
                     break;
                 }
 
