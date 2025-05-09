@@ -21,12 +21,16 @@ public class ConstraintPropagationSolver {
 
     private int propagationDepth = 0;
     private int numberOfGuesses = 0;
+    private boolean isRunningInUI = false;
+    private int stepCount = 0; // Step count for visualization
+    private List<int[][]> steps = new ArrayList<>(); // Store board state for each step
 
-    public ConstraintPropagationSolver(int N) {
+    public ConstraintPropagationSolver(int N, boolean isRunningInUI) {
         if (Math.sqrt(N) != (int) Math.sqrt(N)) {
             throw new IllegalArgumentException("N must be a perfect square.");
         }
         this.N = N;
+        this.isRunningInUI = isRunningInUI;
     }
 
     public void initializeConstraintsAndDomain() {
@@ -114,6 +118,10 @@ public class ConstraintPropagationSolver {
             colConstraints.get(col).add(value);
             boxConstraints.get(getBoxIndex(row, col, boxSize)).add(value);
 
+            if (isRunningInUI) {
+                storeStep();  // Store the current state for visualization
+            }
+
             Map<String, Set<Integer>> nextDomain = deepCopy(currentDomain);
             nextDomain.remove(cell);
             propagate(row, col, value, nextDomain, boxSize);
@@ -175,11 +183,28 @@ public class ConstraintPropagationSolver {
         return true;
     }
 
+    private void storeStep() {
+        int[][] step = new int[N][N];
+        for (int i = 0; i < N; i++) {
+            System.arraycopy(sudoku[i], 0, step[i], 0, N);
+        }
+        steps.add(step);  
+        stepCount++;
+    }
+
     public int getPropagationDepth() {
         return propagationDepth;
     }
 
     public int getNumberOfGuesses() {
         return numberOfGuesses;
+    }
+
+    public List<int[][]> getSteps() {
+        return steps;  
+    }
+
+    public int getStepCount() {
+        return stepCount;  
     }
 }

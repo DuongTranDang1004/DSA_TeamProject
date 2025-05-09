@@ -2,28 +2,25 @@ package implementations;
 
 import java.util.*;
 
-/*
- * ============================================
- *       DLXSolver Class
- * ============================================
- * User For: Solving Sudoku using Dancing Links (DLX), a highly efficient algorithm for exact cover problems.
- * Written By: Group 1 in @RMIT - 2025 for Group Project of COSC2469 Algorithm And Analysis Course
- * ============================================
- */
-
 public class DLXSolver {
     private final int N;
     private final int CONSTRAINTS;
 
+    private int[][] sudoku;
+    private int[][] initialPuzzle; // Store initial puzzle to preserve given numbers
     private int propagationDepth = 0;
     private int numberOfGuesses = 0;
+    private boolean isRunningInUI = false;
+    private int stepCount = 0;
+    private List<int[][]> steps = new ArrayList<>();
 
-    public DLXSolver(int N) {
+    public DLXSolver(int N, boolean isRunningInUI) {
         if (Math.sqrt(N) != (int) Math.sqrt(N)) {
             throw new IllegalArgumentException("N must be a perfect square (e.g., 4, 9, 16).");
         }
         this.N = N;
         this.CONSTRAINTS = 4 * N * N;
+        this.isRunningInUI = isRunningInUI;
     }
 
     class DLXNode {
@@ -124,8 +121,13 @@ public class DLXSolver {
             throw new IllegalArgumentException("Board must be " + N + "x" + N + " and contain values from 0 to " + N);
         }
 
+        this.initialPuzzle = copyBoard(board); // Store initial puzzle
+        this.sudoku = copyBoard(board); // Initialize sudoku with a copy
+        if (isRunningInUI) {
+            storeStep(); // Store initial state
+        }
         List<DLXNode> preset = new ArrayList<>();
-        DLXHeader dlx = buildDLXStructure(board, preset);
+        DLXHeader dlx = buildDLXStructure(sudoku, preset);
         List<DLXNode> solution = new ArrayList<>();
 
         for (DLXNode node : preset) {
@@ -133,6 +135,11 @@ public class DLXSolver {
                 cover(j.column);
             cover(node.column);
             solution.add(node);
+        }
+        // Store state after all presets are processed
+        if (isRunningInUI) {
+            updateSudokuFromSolution(solution);
+            storeStep();
         }
 
         propagationDepth = 0;
@@ -182,7 +189,12 @@ public class DLXSolver {
         propagationDepth = Math.max(propagationDepth, depth);
 
         if (head.right == head) {
-            return decodeSolution(solution);
+            int[][] result = decodeSolution(solution);
+            if (isRunningInUI) {
+                sudoku = copyBoard(result);
+                storeStep();
+            }
+            return result;
         }
 
         ColumnHeader col = chooseColumnWithFewestNodes(head);
@@ -196,9 +208,14 @@ public class DLXSolver {
                 n = n.right;
             } while (n != row);
 
-            numberOfGuesses++; 
+            numberOfGuesses++;
 
             solution.add(n);
+            if (isRunningInUI) {
+                updateSudokuFromSolution(solution);
+                storeStep();
+            }
+
             for (DLXNode j = row.right; j != row; j = j.right) cover(j.column);
 
             int[][] result = search(head, solution, depth + 1);
@@ -206,6 +223,10 @@ public class DLXSolver {
 
             for (DLXNode j = row.left; j != row; j = j.left) uncover(j.column);
             solution.remove(solution.size() - 1);
+            if (isRunningInUI) {
+                updateSudokuFromSolution(solution);
+                storeStep();
+            }
         }
 
         uncover(col);
@@ -224,8 +245,30 @@ public class DLXSolver {
         return best;
     }
 
+    private void updateSudokuFromSolution(List<DLXNode> solution) {
+        sudoku = copyBoard(initialPuzzle); // Start with initial puzzle
+        for (DLXNode node : solution) {
+            DLXNode cellNode = node;
+            DLXNode temp = node;
+
+            do {
+                if (temp.column.id < N * N) {
+                    cellNode = temp;
+                    break;
+                }
+                temp = temp.right;
+            } while (temp != node);
+
+            int rowId = cellNode.rowId;
+            int r = rowId / (N * N);
+            int c = (rowId / N) % N;
+            int d = rowId % N + 1;
+            sudoku[r][c] = d;
+        }
+    }
+
     public int[][] decodeSolution(List<DLXNode> solution) {
-        int[][] board = new int[N][N];
+        int[][] board = copyBoard(initialPuzzle); // Start with initial puzzle
         for (DLXNode node : solution) {
             DLXNode cellNode = node;
             DLXNode temp = node;
@@ -253,5 +296,29 @@ public class DLXSolver {
 
     public int getNumberOfGuesses() {
         return numberOfGuesses;
+    }
+
+    public void storeStep() {
+        int[][] step = copyBoard(sudoku);
+        if (steps.isEmpty() || !Arrays.deepEquals(steps.get(steps.size() - 1), step)) {
+            steps.add(step);
+            stepCount++;
+        }
+    }
+
+    public int getStepCount() {
+        return stepCount;
+    }
+
+    public List<int[][]> getSteps() {
+        return steps;
+    }
+
+    private int[][] copyBoard(int[][] board) {
+        int[][] copy = new int[N][N];
+        for (int i = 0; i < N; i++) {
+            System.arraycopy(board[i], 0, copy[i], 0, N);
+        }
+        return copy;
     }
 }

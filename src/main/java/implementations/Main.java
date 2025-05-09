@@ -168,26 +168,26 @@ public class Main {
 
                 switch (solverName) {
                     case "Backtracking":
-                        BackTrackingSolver back = new BackTrackingSolver(copy.length);
+                        BackTrackingSolver back = new BackTrackingSolver(copy.length,false);
                         back.setTimeoutMillis(timeout);
                         resultBoard = back.solve(copy);
                         numberOfGuesses = back.getNumberOfGuesses();
                         propagationDepth = back.getPropagationDepth();
                         break;
                     case "ConstraintPropagation":
-                        ConstraintPropagationSolver cp = new ConstraintPropagationSolver(copy.length);
+                        ConstraintPropagationSolver cp = new ConstraintPropagationSolver(copy.length,false);
                         resultBoard = cp.solve(copy);
                         numberOfGuesses = cp.getNumberOfGuesses();
                         propagationDepth = cp.getPropagationDepth();
                         break;
                     case "DPLLSAT":
-                        DPLLSATSolver dpll = new DPLLSATSolver(copy.length);
+                        DPLLSATSolver dpll = new DPLLSATSolver(copy.length,false);
                         resultBoard = dpll.solve(copy);
                         numberOfGuesses = dpll.getNumberOfGuesses();
                         propagationDepth = dpll.getPropagationDepth();
                         break;
                     case "DLX":
-                        DLXSolver dlx = new DLXSolver(copy.length);
+                        DLXSolver dlx = new DLXSolver(copy.length,false);
                         resultBoard = dlx.solve(copy);
                         numberOfGuesses = dlx.getNumberOfGuesses();
                         propagationDepth = dlx.getPropagationDepth();

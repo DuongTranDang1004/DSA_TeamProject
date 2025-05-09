@@ -1,17 +1,37 @@
 package ui;
 
 import javafx.application.Application;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.scene.Scene;
-import javafx.stage.Stage;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.geometry.Insets;
+import javafx.stage.Stage;
+import javafx.scene.Node;
+import javafx.util.Duration;
 import datasets.PuzzleBank;
+import implementations.DLXSolver;
+import implementations.BackTrackingSolver;
+import implementations.ConstraintPropagationSolver;
+import implementations.DPLLSATSolver;
+
+import java.util.List;
+import java.util.ArrayList;
 
 public class SudokuSolverUI extends Application {
 
-    private int[][] currentPuzzle = new int[9][9];
+    private int[][] currentPuzzle;
+    private int[][] originalPuzzle;
+    private int[][] previousStep;
     private GridPane sudokuGrid = new GridPane();
+    private boolean visualizeSolvingSteps = false;
+    private Label statusLabel = new Label("Status: Ready");
+    private List<int[][]> solvingSteps;
+    private Timeline animationTimeline;
+    private double animationSpeed = 1000; // 1000ms per step
+    private int currentStepIndex;
+    private ScrollPane gridScrollPane = new ScrollPane();
 
     public static void main(String[] args) {
         launch(args);
@@ -21,77 +41,265 @@ public class SudokuSolverUI extends Application {
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Sudoku Solver");
 
+        // Main layout
         VBox mainLayout = new VBox(10);
-        HBox controlsLayout = new HBox(10);
-        HBox buttonLayout = new HBox(10);
+        mainLayout.setPadding(new Insets(15));
 
-        Label puzzleLabel = new Label("Origin Puzzle:");
-        Label statusLabel = new Label("Status: Waiting...");
+        // Sections
+        HBox inputSection = createInputSection();
+        HBox optionsSection = createOptionsSection();
+        HBox solverButtonsSection = createSolverButtonsSection();
+        HBox animationControlsSection = createAnimationControlsSection();
+        animationControlsSection.setVisible(false);
 
-        TextField puzzleTextField = new TextField();
-        puzzleTextField.setPromptText("Enter Sudoku as a string (81 digits)");
+        // Configure ScrollPane
+        configureGridScrollPane();
 
-        Button generatePuzzleButton = new Button("Generate Random Puzzle");
-        Button submitPuzzleButton = new Button("Submit Puzzle");
+        // Assemble layout
+        mainLayout.getChildren().addAll(
+            inputSection,
+            new Separator(),
+            gridScrollPane,
+            statusLabel,
+            optionsSection,
+            solverButtonsSection,
+            animationControlsSection
+        );
 
-        Button backtrackingButton = new Button("Backtracking");
-        Button constraintPropagationButton = new Button("Constraint Propagation");
-        Button dpllSatButton = new Button("DPLL-SAT");
-        Button dlxButton = new Button("DLX");
-
-        generatePuzzleButton.setOnAction(e -> generateRandomPuzzle());
-        submitPuzzleButton.setOnAction(e -> submitPuzzle(puzzleTextField.getText()));
-
-        backtrackingButton.setOnAction(e -> solveWithBacktracking());
-        constraintPropagationButton.setOnAction(e -> solveWithConstraintPropagation());
-        dpllSatButton.setOnAction(e -> solveWithDPLLSAT());
-        dlxButton.setOnAction(e -> solveWithDLX());
-
-        controlsLayout.getChildren().addAll(puzzleLabel, puzzleTextField, generatePuzzleButton, submitPuzzleButton);
-        buttonLayout.getChildren().addAll(backtrackingButton, constraintPropagationButton, dpllSatButton, dlxButton);
-
-        mainLayout.getChildren().addAll(controlsLayout, sudokuGrid, statusLabel, buttonLayout);
-        mainLayout.setPadding(new Insets(10));
-
-        Scene scene = new Scene(mainLayout, 600, 600);
+        // Configure scene
+        Scene scene = new Scene(mainLayout, 1000, 800);
         primaryStage.setScene(scene);
+        primaryStage.setMinWidth(800);
+        primaryStage.setMinHeight(600);
         primaryStage.show();
+    }
+
+    private HBox createInputSection() {
+        HBox inputSection = new HBox(10);
+        Label puzzleLabel = new Label("Puzzle:");
+        TextField puzzleTextField = new TextField();
+        puzzleTextField.setPromptText("Enter Sudoku as a string (0 for empty cells)");
+        puzzleTextField.setPrefWidth(300);
+
+        Button generateBtn = new Button("Generate Random");
+        Button submitBtn = new Button("Submit");
+
+        generateBtn.setOnAction(e -> generateRandomPuzzle());
+        submitBtn.setOnAction(e -> submitPuzzle(puzzleTextField.getText()));
+
+        inputSection.getChildren().addAll(puzzleLabel, puzzleTextField, generateBtn, submitBtn);
+        return inputSection;
+    }
+
+    private HBox createOptionsSection() {
+        HBox optionsSection = new HBox(15);
+        Label modeLabel = new Label("Mode:");
+
+        ToggleGroup modeGroup = new ToggleGroup();
+        RadioButton runMode = new RadioButton("Run");
+        RadioButton visualizeMode = new RadioButton("Visualize Steps");
+        runMode.setToggleGroup(modeGroup);
+        visualizeMode.setToggleGroup(modeGroup);
+        runMode.setSelected(true);
+
+        runMode.setOnAction(e -> visualizeSolvingSteps = false);
+        visualizeMode.setOnAction(e -> visualizeSolvingSteps = true);
+
+        optionsSection.getChildren().addAll(modeLabel, runMode, visualizeMode);
+        return optionsSection;
+    }
+
+    private HBox createSolverButtonsSection() {
+        HBox solverButtons = new HBox(10);
+
+        Button backtrackingBtn = new Button("Backtracking");
+        Button constraintBtn = new Button("Constraint Propagation");
+        Button dpllBtn = new Button("DPLL-SAT");
+        Button dlxBtn = new Button("DLX");
+
+        backtrackingBtn.setOnAction(e -> solveWithBacktracking());
+        constraintBtn.setOnAction(e -> solveWithConstraintPropagation());
+        dpllBtn.setOnAction(e -> solveWithDPLLSAT());
+        dlxBtn.setOnAction(e -> solveWithDLX());
+
+        solverButtons.getChildren().addAll(backtrackingBtn, constraintBtn, dpllBtn, dlxBtn);
+        return solverButtons;
+    }
+
+    private HBox createAnimationControlsSection() {
+        HBox animationControls = new HBox(10);
+
+        Button pauseBtn = new Button("Pause");
+        Button resumeBtn = new Button("Resume");
+        Button prevBtn = new Button("Previous");
+        Button nextBtn = new Button("Next");
+        Label speedLabel = new Label("Speed:");
+        Slider speedSlider = new Slider(500, 1500, 1000);
+        speedSlider.setShowTickLabels(true);
+        speedSlider.setMajorTickUnit(250);
+
+        pauseBtn.setOnAction(e -> pauseAnimation());
+        resumeBtn.setOnAction(e -> resumeAnimation());
+        prevBtn.setOnAction(e -> showPreviousStep());
+        nextBtn.setOnAction(e -> showNextStep());
+        speedSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            animationSpeed = newVal.doubleValue();
+            restartAnimationIfRunning();
+        });
+
+        animationControls.getChildren().addAll(pauseBtn, resumeBtn, prevBtn, nextBtn, speedLabel, speedSlider);
+        return animationControls;
+    }
+
+    private void configureGridScrollPane() {
+        gridScrollPane.setContent(sudokuGrid);
+        gridScrollPane.setFitToWidth(true);
+        gridScrollPane.setFitToHeight(true);
+        gridScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        gridScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        gridScrollPane.setPrefViewportHeight(400);
     }
 
     private void generateRandomPuzzle() {
         int[][] puzzle = PuzzleBank.getRandomPuzzle();
+        originalPuzzle = copyPuzzle(puzzle);
+        currentPuzzle = copyPuzzle(puzzle);
+        previousStep = null;
         displayPuzzle(puzzle);
+        statusLabel.setText("Random puzzle generated");
     }
 
     private void submitPuzzle(String input) {
-        int size = (int) Math.sqrt(input.length());
-        if (input.length() == size * size) {
-            for (int i = 0; i < size; i++) {
-                for (int j = 0; j < size; j++) {
-                    currentPuzzle[i][j] = Character.getNumericValue(input.charAt(i * size + j));
-                }
-            }
-            displayPuzzle(currentPuzzle);
+        if (input == null || input.isEmpty()) {
+            statusLabel.setText("Error: Input is empty");
+            return;
         }
+
+        int size = (int) Math.sqrt(input.length());
+        int expectedLength = size * size;
+        if (expectedLength != input.length()) {
+            // Check if it's one digit short and pad if necessary
+            int diff = expectedLength - input.length();
+            if (diff == 1) {
+                input = input + "0"; // Pad with a 0
+                size = (int) Math.sqrt(input.length());
+                statusLabel.setText("Input was one digit short; padded with a 0");
+            } else {
+                statusLabel.setText("Error: Input length must be a perfect square (e.g., 81 for 9x9, 256 for 16x16, 625 for 25x25). Got: " + input.length());
+                return;
+            }
+        }
+
+        if (!input.matches("[0-9]+")) {
+            statusLabel.setText("Error: Input must contain only digits 0-9");
+            return;
+        }
+
+        originalPuzzle = new int[size][size];
+        currentPuzzle = new int[size][size];
+        previousStep = null;
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                originalPuzzle[i][j] = Character.getNumericValue(input.charAt(i * size + j));
+                currentPuzzle[i][j] = originalPuzzle[i][j];
+            }
+        }
+
+        displayPuzzle(currentPuzzle);
+        statusLabel.setText("Puzzle submitted (" + size + "x" + size + ")");
     }
 
     private void displayPuzzle(int[][] puzzle) {
+        // Clear existing grid
         sudokuGrid.getChildren().clear();
-        sudokuGrid.setGridLinesVisible(true);
-        int size = puzzle.length;
+        sudokuGrid.getColumnConstraints().clear();
+        sudokuGrid.getRowConstraints().clear();
+        sudokuGrid.setGridLinesVisible(false); // We'll style borders manually
 
+        int size = puzzle.length;
+        double maxCellSize = 60;
+        double cellSize = Math.min(maxCellSize, 800.0 / size);
+
+        // Determine subgrid size (e.g., 3 for 9x9, 4 for 16x16, 5 for 25x25)
+        int subgridSize = (int) Math.sqrt(size);
+        if (subgridSize * subgridSize != size) {
+            // If not a perfect square (unlikely since input is validated), default to 3
+            subgridSize = 3;
+        }
+
+        // Set constraints for rows and columns
+        for (int i = 0; i < size; i++) {
+            ColumnConstraints colConstraints = new ColumnConstraints(cellSize);
+            RowConstraints rowConstraints = new RowConstraints(cellSize);
+            sudokuGrid.getColumnConstraints().add(colConstraints);
+            sudokuGrid.getRowConstraints().add(rowConstraints);
+        }
+
+        // Populate grid with cells
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
-                TextField cell = new TextField();
-                cell.setText(puzzle[row][col] == 0 ? "" : String.valueOf(puzzle[row][col]));
-                cell.setPrefWidth(40);
-                cell.setPrefHeight(40);
-                cell.setStyle("-fx-font-size: 16; -fx-alignment: center;");
+                TextField cell = createSudokuCell(puzzle[row][col], originalPuzzle[row][col]);
+                // Apply thicker borders for subgrid boundaries
+                StringBuilder borderStyle = new StringBuilder();
+                // Top border
+                if (row % subgridSize == 0) {
+                    borderStyle.append("-fx-border-width: 2 1 1 1; ");
+                } else {
+                    borderStyle.append("-fx-border-width: 1 1 1 1; ");
+                }
+                // Left border
+                if (col % subgridSize == 0) {
+                    borderStyle.append("-fx-border-width: ").append(row % subgridSize == 0 ? "2" : "1").append(" 1 1 2; ");
+                }
+                // Right border
+                if ((col + 1) % subgridSize == 0 && col != size - 1) {
+                    borderStyle.append("-fx-border-width: ").append(row % subgridSize == 0 ? "2" : "1").append(" 2 1 ").append(col % subgridSize == 0 ? "2" : "1").append("; ");
+                }
+                // Bottom border
+                if ((row + 1) % subgridSize == 0 && row != size - 1) {
+                    borderStyle.append("-fx-border-width: ").append(row % subgridSize == 0 ? "2" : "1").append(" ").append((col + 1) % subgridSize == 0 ? "2" : "1").append(" 2 ").append(col % subgridSize == 0 ? "2" : "1").append("; ");
+                }
+                borderStyle.append("-fx-border-color: black; ");
+                cell.setStyle(cell.getStyle() + borderStyle.toString());
+                GridPane.setColumnIndex(cell, col);
+                GridPane.setRowIndex(cell, row);
                 sudokuGrid.add(cell, col, row);
             }
         }
     }
 
+    private TextField createSudokuCell(int value, int originalValue) {
+        TextField cell = new TextField();
+        cell.setPrefSize(40, 40);
+        cell.setEditable(false);
+        updateCellAppearance(cell, value, originalValue, false);
+        return cell;
+    }
+
+    private void updateCellAppearance(TextField cell, int value, int originalValue, boolean isChanged) {
+        cell.setText(value == 0 ? "" : String.valueOf(value));
+        double fontSize = originalPuzzle.length <= 9 ? 18 :
+                        originalPuzzle.length <= 16 ? 14 : 10;
+        String baseStyle = String.format("-fx-font-size: %.0f; -fx-alignment: center;", fontSize);
+
+        if (isChanged) {
+            String color = (value == 0 && previousStep != null &&
+                          previousStep[GridPane.getRowIndex(cell)][GridPane.getColumnIndex(cell)] != 0)
+                          ? "orange" : "lightblue"; // Changed to lightblue for additions
+            cell.setStyle("-fx-background-color: " + color + "; -fx-font-weight: bold;" + baseStyle);
+            new Timeline(new KeyFrame(Duration.millis(1500), e -> {
+                String currentStyle = cell.getStyle();
+                // Preserve border styles when resetting background
+                cell.setStyle((originalValue != 0 ? "-fx-font-weight: bold;" : "") + baseStyle +
+                              currentStyle.substring(currentStyle.indexOf("-fx-border-width")));
+            })).play();
+        } else {
+            cell.setStyle((originalValue != 0 ? "-fx-font-weight: bold;" : "") + baseStyle);
+        }
+    }
+
+    // Solver Methods
     private void solveWithBacktracking() {
         solvePuzzle("Backtracking");
     }
@@ -109,8 +317,242 @@ public class SudokuSolverUI extends Application {
     }
 
     private void solvePuzzle(String solverType) {
-        StringBuilder statusMessage = new StringBuilder("Solving with " + solverType + "...");
-        statusMessage.append("\nSolved!");
-        displayPuzzle(currentPuzzle);
+        if (currentPuzzle == null) {
+            statusLabel.setText("Error: No puzzle loaded");
+            return;
+        }
+
+        statusLabel.setText("Solving with " + solverType + "...");
+        if (visualizeSolvingSteps) {
+            visualizeSteps(solverType);
+        } else {
+            solveAndDisplayPuzzle(solverType);
+        }
+    }
+
+    private void solveAndDisplayPuzzle(String solverType) {
+        int[][] solvedPuzzle = copyPuzzle(currentPuzzle);
+        if (solverType.equals("Backtracking")) {
+            BackTrackingSolver solver = new BackTrackingSolver(solvedPuzzle.length, false);
+            solvedPuzzle = solver.solve(solvedPuzzle);
+        } else if (solverType.equals("Constraint Propagation")) {
+            ConstraintPropagationSolver solver = new ConstraintPropagationSolver(solvedPuzzle.length, false);
+            solvedPuzzle = solver.solve(solvedPuzzle);
+        } else if (solverType.equals("DPLL-SAT")) {
+            DPLLSATSolver solver = new DPLLSATSolver(solvedPuzzle.length, false);
+            solvedPuzzle = solver.solve(solvedPuzzle);
+        } else if (solverType.equals("DLX")) {
+            DLXSolver solver = new DLXSolver(solvedPuzzle.length, false);
+            solvedPuzzle = solver.solve(solvedPuzzle);
+        }
+
+        if (solvedPuzzle != null) {
+            currentPuzzle = solvedPuzzle;
+            previousStep = null;
+            displayPuzzle(currentPuzzle);
+            statusLabel.setText("Solved with " + solverType);
+        } else {
+            statusLabel.setText("Failed to solve with " + solverType);
+        }
+    }
+
+    private void visualizeSteps(String solverType) {
+        int[][] puzzleToSolve = copyPuzzle(currentPuzzle);
+        if (solverType.equals("Backtracking")) {
+            BackTrackingSolver solver = new BackTrackingSolver(puzzleToSolve.length, true);
+            solver.solve(puzzleToSolve);
+            solvingSteps = solver.getSteps();
+        } else if (solverType.equals("Constraint Propagation")) {
+            ConstraintPropagationSolver solver = new ConstraintPropagationSolver(puzzleToSolve.length, true);
+            solver.solve(puzzleToSolve);
+            solvingSteps = solver.getSteps();
+        } else if (solverType.equals("DPLL-SAT")) {
+            DPLLSATSolver solver = new DPLLSATSolver(puzzleToSolve.length, true);
+            solver.solve(puzzleToSolve);
+            solvingSteps = solver.getSteps();
+        } else if (solverType.equals("DLX")) {
+            DLXSolver solver = new DLXSolver(puzzleToSolve.length, true);
+            solver.solve(puzzleToSolve);
+            solvingSteps = solver.getSteps();
+        }
+
+        if (solvingSteps == null || solvingSteps.isEmpty()) {
+            statusLabel.setText("No steps available for visualization");
+            return;
+        }
+
+        List<int[][]> filteredSteps = filterPresetSteps(solvingSteps);
+
+        if (filteredSteps.isEmpty()) {
+            statusLabel.setText("Error: No valid steps after filtering");
+            return;
+        }
+
+        solvingSteps = filteredSteps;
+        visualizeStepsWithAnimation(filteredSteps, solverType);
+    }
+
+    private List<int[][]> filterPresetSteps(List<int[][]> steps) {
+        List<int[][]> filteredSteps = new ArrayList<>();
+        boolean foundCompletePreset = false;
+
+        List<int[]> presetPositions = new ArrayList<>();
+        int presetCount = 0;
+        for (int i = 0; i < originalPuzzle.length; i++) {
+            for (int j = 0; j < originalPuzzle[i].length; j++) {
+                if (originalPuzzle[i][j] != 0) {
+                    presetPositions.add(new int[]{i, j, originalPuzzle[i][j]});
+                    presetCount++;
+                }
+            }
+        }
+
+        for (int s = 0; s < steps.size(); s++) {
+            int[][] step = steps.get(s);
+            int nonZeroCount = 0;
+            boolean matchesAllPresets = true;
+
+            for (int i = 0; i < step.length; i++) {
+                for (int j = 0; j < step[i].length; j++) {
+                    if (step[i][j] != 0) {
+                        nonZeroCount++;
+                    }
+                }
+            }
+
+            for (int[] preset : presetPositions) {
+                int row = preset[0], col = preset[1], value = preset[2];
+                if (step[row][col] != value) {
+                    matchesAllPresets = false;
+                    break;
+                }
+            }
+
+            if (!foundCompletePreset && matchesAllPresets && nonZeroCount >= presetCount) {
+                foundCompletePreset = true;
+                filteredSteps.add(step);
+            } else if (foundCompletePreset) {
+                filteredSteps.add(step);
+            }
+        }
+
+        return filteredSteps;
+    }
+
+    private void visualizeStepsWithAnimation(List<int[][]> steps, String solverType) {
+        ((HBox) gridScrollPane.getParent().getChildrenUnmodifiable().get(6)).setVisible(true);
+        previousStep = copyPuzzle(currentPuzzle);
+        currentStepIndex = 0;
+
+        if (animationTimeline != null) {
+            animationTimeline.stop();
+        }
+
+        animationTimeline = new Timeline();
+
+        updateGridWithStep(steps.get(0));
+        statusLabel.setText("Step 1/" + steps.size() + " (" + solverType + ")");
+        currentStepIndex++;
+
+        for (int i = 1; i < steps.size(); i++) {
+            final int[][] step = steps.get(i);
+            final int stepNum = i;
+            KeyFrame keyFrame = new KeyFrame(Duration.millis(animationSpeed * i), e -> {
+                updateGridWithStep(step);
+                currentStepIndex = stepNum;
+                statusLabel.setText("Step " + (currentStepIndex + 1) + "/" + steps.size() + " (" + solverType + ")");
+            });
+            animationTimeline.getKeyFrames().add(keyFrame);
+        }
+
+        animationTimeline.setOnFinished(e -> {
+            statusLabel.setText(solverType + " Solved!");
+            ((HBox) gridScrollPane.getParent().getChildrenUnmodifiable().get(6)).setVisible(false);
+            animationTimeline = null;
+            currentPuzzle = steps.get(steps.size() - 1);
+        });
+
+        animationTimeline.setCycleCount(1);
+        animationTimeline.play();
+    }
+
+    private void pauseAnimation() {
+        if (animationTimeline != null) {
+            animationTimeline.pause();
+            statusLabel.setText("Visualization paused at Step " + (currentStepIndex + 1) + "/" + solvingSteps.size());
+        }
+    }
+
+    private void resumeAnimation() {
+        if (animationTimeline != null) {
+            animationTimeline.play();
+            statusLabel.setText("Visualizing Step " + (currentStepIndex + 1) + "/" + solvingSteps.size());
+        }
+    }
+
+    private void showPreviousStep() {
+        if (animationTimeline != null && solvingSteps != null && currentStepIndex > 0) {
+            animationTimeline.pause();
+            currentStepIndex--;
+            updateGridWithStep(solvingSteps.get(currentStepIndex));
+            statusLabel.setText("Step " + (currentStepIndex + 1) + "/" + solvingSteps.size() + " (" + statusLabel.getText().split(" ")[2]);
+        }
+    }
+
+    private void showNextStep() {
+        if (animationTimeline != null && solvingSteps != null && currentStepIndex < solvingSteps.size() - 1) {
+            animationTimeline.pause();
+            currentStepIndex++;
+            updateGridWithStep(solvingSteps.get(currentStepIndex));
+            statusLabel.setText("Step " + (currentStepIndex + 1) + "/" + solvingSteps.size() + " (" + statusLabel.getText().split(" ")[2]);
+        }
+    }
+
+    private void restartAnimationIfRunning() {
+        if (animationTimeline != null && animationTimeline.getStatus() == Timeline.Status.RUNNING) {
+            String solverType = statusLabel.getText().split(" ")[2].replace("(", "").replace(")", "");
+            visualizeStepsWithAnimation(solvingSteps, solverType);
+        }
+    }
+
+    private void updateGridWithStep(int[][] step) {
+        int size = step.length;
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                if (previousStep == null || previousStep[row][col] != step[row][col]) {
+                    TextField cell = (TextField) getNodeFromGridPane(sudokuGrid, col, row);
+                    if (cell != null) {
+                        updateCellAppearance(cell, step[row][col], originalPuzzle[row][col], true);
+                    }
+                }
+            }
+        }
+        previousStep = copyPuzzle(step);
+    }
+
+    private Node getNodeFromGridPane(GridPane grid, int column, int row) {
+        for (Node node : grid.getChildren()) {
+            Integer colIndex = GridPane.getColumnIndex(node);
+            Integer rowIndex = GridPane.getRowIndex(node);
+            if (colIndex == null) {
+                colIndex = 0;
+            }
+            if (rowIndex == null) {
+                rowIndex = 0;
+            }
+            if (colIndex != null && rowIndex != null && colIndex == column && rowIndex == row) {
+                return node;
+            }
+        }
+        return null;
+    }
+
+    private int[][] copyPuzzle(int[][] puzzle) {
+        int size = puzzle.length;
+        int[][] copy = new int[size][size];
+        for (int i = 0; i < size; i++) {
+            System.arraycopy(puzzle[i], 0, copy[i], 0, size);
+        }
+        return copy;
     }
 }

@@ -17,14 +17,18 @@ public class DPLLSATSolver {
     private final Map<Integer, Boolean> variableAssignments = new HashMap<>();
     private int maxPropagationDepth = 0;
     private int totalGuessCount = 0;
+    private boolean isRunningInUI = false;
+    private int stepCount = 0; 
+    private List<int[][]> steps = new ArrayList<>();  // List to store the steps for visualization
 
-    public DPLLSATSolver(int N) {
+    public DPLLSATSolver(int N, boolean isRunningInUI) {
         int root = (int) Math.sqrt(N);
         if (root * root != N) {
             throw new IllegalArgumentException("Board must be " + N + "x" + N + " and contain values from 0 to " + N);
         }
         this.N = N;
         this.maxRecursionDepth = N * N * N;
+        this.isRunningInUI = isRunningInUI;
     }
 
     public int[][] solve(int[][] board) {
@@ -90,6 +94,7 @@ public class DPLLSATSolver {
 
     private void assignLiteral(int literal) {
         variableAssignments.put(Math.abs(literal), literal > 0);
+        if (isRunningInUI) storeStep(); 
     }
 
     private void unassignLiteral(int literal) {
@@ -143,5 +148,27 @@ public class DPLLSATSolver {
 
     public int getNumberOfGuesses() {
         return totalGuessCount;
+    }
+    
+    public void storeStep() {
+        int[][] step = new int[N][N];
+        for (Map.Entry<Integer, Boolean> entry : variableAssignments.entrySet()) {
+            int var = entry.getKey(); 
+            int value = entry.getValue() ? 1 : 0; 
+            int row = (var / N) % N;  
+            int col = var % N;      
+            step[row][col] = value + 1;
+        }
+        steps.add(step);  
+        stepCount++;
+    }
+    
+
+    public int getStepCount() {
+        return stepCount; 
+    }
+
+    public List<int[][]> getSteps() {
+        return steps;  
     }
 }
