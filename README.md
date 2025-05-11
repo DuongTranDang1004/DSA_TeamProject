@@ -37,17 +37,15 @@ DSA_TeamProject/
 │   └── datasets/
 │       └── PuzzleBank.java
 │
-├── test/
-│   └── java/implementations/
-│       └── MainTest.java
-│
-├── test-data/
-│   └── puzzle_result.csv 
-│
+|   ├── test/
+|       ├── BacktrackingTest.java
+|       ├── ConstraintPropagationTest.java
+|       ├── DLXSolverTest.java
+|       ├── SATSolverTest.java
+|
 ├── README.md 
 ├── LICENSE 
-├── pom.xml 
-└── requirements.txt 
+└── pom.xml 
 ```
 
 ## Explanation
@@ -70,11 +68,10 @@ DSA_TeamProject/
     - **PuzzleBank.java**: Provides methods for generating random Sudoku puzzles.
 
 - **test/**: Contains unit tests for the project.
-  - **java/implementations/**: Contains unit tests for the solver algorithms.
-    - **MainTest.java**: JUnit tests for testing the Main.java class and solving algorithms.
-
-- **test-data/**: Stores benchmarking results.
-  - **puzzle_result.csv**: A CSV file storing benchmark results (e.g., time, memory usage, etc.) for each puzzle solved.
+    - **BacktrackingTest.java**: Tests the classic backtracking implementation.
+    - **ConstraintPropagationTest.java**: Tests constraint propagation with MRV heuristic.
+    - **DLXSolverTest.java**: Tests the Dancing Links (DLX) algorithm.
+    - **SATSolverTest.java**: Tests the SAT-based solver (DPLL).
 
 - **README.md**: A markdown file containing the project description and setup instructions.
 
@@ -82,7 +79,6 @@ DSA_TeamProject/
 
 - **pom.xml**: Maven configuration file for building, managing dependencies, and running the project.
 
-- **requirements.txt**: Python dependencies for Jupyter notebooks (e.g., for data analysis).
 
 This structure organizes the project by separating code, tests, data analysis, and other supporting files.
 
@@ -155,7 +151,7 @@ To properly set up OpenJDK 17 in IntelliJ IDEA, refer to [the IntelliJ IDEA - SD
 To run the puzzle-solving program, call the **`Main.java`** class. This will solve all puzzles and generate the benchmark results.
 
 ## JUnit Tests:
-All tests are located in **`test/java/implementations/MainTest.java`**. To run the tests, use:
+All tests are located in **`test`**. To run the tests, use:
 
 ```bash
 mvn test
@@ -187,7 +183,3 @@ If your program cannot find a solution within 2 minutes (on any computer), it mu
 exception. 
 You may create additional classes and methods needed to organize your code eectively. 
 Each method require unit test.
-
-
-
- 

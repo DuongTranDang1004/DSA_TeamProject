@@ -1,0 +1,12 @@
+D:\DSA_TeamProject\src\main\java\datasets\Sudoku9x9.java
+D:\DSA_TeamProject\src\main\java\datasets\VeryHardSudoku.java
+D:\DSA_TeamProject\src\main\java\implementations\DLXSolver.java
+D:\DSA_TeamProject\src\main\java\datasets\NormalSudokuLargeGrids.java
+D:\DSA_TeamProject\src\main\java\datasets\PuzzleBank.java
+D:\DSA_TeamProject\src\main\java\datasets\NormalSudoku9x9.java
+D:\DSA_TeamProject\src\main\java\implementations\Main.java
+D:\DSA_TeamProject\src\main\java\implementations\ConstraintPropagationSolver.java
+D:\DSA_TeamProject\src\main\java\implementations\DPLLSATSolver.java
+D:\DSA_TeamProject\src\main\java\ui\SudokuSolverUI.java
+D:\DSA_TeamProject\src\main\java\implementations\SudokuCnfEncoder.java
+D:\DSA_TeamProject\src\main\java\implementations\BackTrackingSolver.java
