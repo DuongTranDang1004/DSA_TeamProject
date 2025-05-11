@@ -3,13 +3,15 @@ import java.util.ArrayList;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
+import implementations.*;
+
 public class DLXSolverTest {
 
     @Test
     void testBuildDLXStructureCreatesCorrectNumberOfColumns() {
         int N = 9;
         int[][] board = new int[N][N];
-        DLXSolver solver = new DLXSolver(N);
+        DLXSolver solver = new DLXSolver(N, false);
         List<DLXSolver.DLXNode> preset = new ArrayList<>();
         DLXSolver.DLXHeader header = solver.buildDLXStructure(board, preset);
 

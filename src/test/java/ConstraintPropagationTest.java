@@ -7,6 +7,8 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import implementations.*;
+
 public class ConstraintPropagationTest {
     private static final int N = 9;
     private static final int BOX_SIZE = 3;
@@ -18,7 +20,7 @@ public class ConstraintPropagationTest {
         board[0][1] = 2;
         board[1][0] = 3;
 
-        ConstraintPropagationSolver solver = new ConstraintPropagationSolver(N);
+        ConstraintPropagationSolver solver = new ConstraintPropagationSolver(N, false);
         solver.sudoku = board;
         solver.rowConstraints = new HashMap<>();
         solver.colConstraints = new HashMap<>();
@@ -47,7 +49,7 @@ public class ConstraintPropagationTest {
     void testBacktrackReturnsFalseOnInvalidDomain() {
         ConstraintPropagationSolver solver = new ConstraintPropagationSolver(N);
         Map<String, Set<Integer>> invalidDomain = new HashMap<>();
-        invalidDomain.put("0,0", new HashSet<>()); // No possible value
+        invalidDomain.put("0,0", new HashSet<>()); 
 
         boolean result = solver.backtrack(invalidDomain);
         assertFalse(result);

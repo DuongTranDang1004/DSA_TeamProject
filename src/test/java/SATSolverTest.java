@@ -3,13 +3,15 @@ import java.util.HashMap;
 import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
+import implementations.*;
+
 public class SATSolverTest {
 
     private static final int N = 9;
 
     @Test
     void testEncodingReturnsNonEmptyClauses() {
-        int[][] board = new int[N][N]; // Empty Sudoku
+        int[][] board = new int[N][N]; 
         SudokuCnfEncoder encoder = new SudokuCnfEncoder(N);
         int[][] cnf = encoder.encodeSudoku(board);
 
@@ -62,7 +64,7 @@ public class SATSolverTest {
         int[][] board = new int[N][N];
         board[0][0] = 5;
 
-        DPLLSATSolver solver = new DPLLSATSolver(N);
+        DPLLSATSolver solver = new DPLLSATSolver(N, false);
         int[][] result = solver.solve(board);
 
         assertNotNull(result, "Result should not be null");

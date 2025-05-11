@@ -3,6 +3,8 @@ import java.util.Map;
 import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
+import implementations.*;
+
 public class BacktrackingTest {
 
     private static final int N = 9;
@@ -12,7 +14,7 @@ public class BacktrackingTest {
         int[][] board = new int[N][N];
         board[0][0] = 5;
 
-        BackTrackingSolver solver = new BackTrackingSolver(N);
+        BackTrackingSolver solver = new BackTrackingSolver(N, false); // Cai Running In UI la de em check cai visualize nha a
         solver.sudoku = board;
         solver.findInitialRowConstraint();
 
