@@ -183,7 +183,7 @@ The **`Analysis.ipynb`** notebook can be opened in Jupyter or JupyterLab. It is 
 2. Launch Jupyter Notebook by running:
       jupyter notebook
 
-3. Open the Analysis.ipynb file.
+3. Open the **`Analysis.ipynb`** file.
 
 4. Run the cells sequentially to load the CSV data and generate visualizations.
 
