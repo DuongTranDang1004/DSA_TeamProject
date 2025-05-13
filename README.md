@@ -21,7 +21,6 @@ Additionally, **JUnit tests** have been added for unit testing, and there are **
 DSA_TeamProject/
 │
 ├── notebooks/
-│   └── images/
 │   └── Analysis.ipynb 
 │
 ├── src/
@@ -42,7 +41,10 @@ DSA_TeamProject/
 |       ├── ConstraintPropagationTest.java
 |       ├── DLXSolverTest.java
 |       ├── SATSolverTest.java
-|
+├── results
+      ├── puzzle_result_extra.csv
+      ├── puzzle_result_extra_16x16.csv
+      ├── puzzle_result_extra_25x25.csv
 ├── README.md 
 ├── LICENSE 
 └── pom.xml 
@@ -51,7 +53,6 @@ DSA_TeamProject/
 ## Explanation
 
 - **notebooks/**: Contains Jupyter notebooks for data analysis and visualizations.
-  - **images/**: Stores image files used in the analysis notebooks.
   - **Analysis.ipynb**: A Jupyter notebook for analyzing performance data and visualizing the results.
 
 - **src/**: The main source code for the project.
@@ -72,6 +73,11 @@ DSA_TeamProject/
     - **ConstraintPropagationTest.java**: Tests constraint propagation with MRV heuristic.
     - **DLXSolverTest.java**: Tests the Dancing Links (DLX) algorithm.
     - **SATSolverTest.java**: Tests the SAT-based solver (DPLL).
+
+- **results/**: Contains CSV files documenting the experimental results for the different Sudoku puzzle sizes (9x9, 16x16, and 25x25).
+    - **puzzle_result_extra.csv**
+    - **puzzle_result_extra_16x16.csv**
+    - **puzzle_result_extra_25x25.csv**
 
 - **README.md**: A markdown file containing the project description and setup instructions.
 
