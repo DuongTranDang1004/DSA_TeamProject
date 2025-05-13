@@ -311,7 +311,7 @@ public class Main {
             }
         }
 
-        try (FileWriter writer = new FileWriter("puzzle_result.csv", false)) {
+        try (FileWriter writer = new FileWriter("results/puzzle_result_extra.csv", false)) {
             for (String[] record : records) {
                 writer.write(String.join(",", record));
                 writer.write("\n");
