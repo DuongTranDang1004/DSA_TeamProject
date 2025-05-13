@@ -163,7 +163,7 @@ All tests are located in **`test`**. To run the tests, use:
 mvn test
 ```
 ## Jupyter Notebook:
-The **`Analysis.ipynb`** notebook can be opened in Jupyter or JupyterLab. It is designed to analyze the benchmark results generated in the results/ folder and visualize the performance of different Sudoku solvers. The notebook performs the following tasks:
+The **`Analysis.ipynb`** notebook can be opened in Jupyter or JupyterLab. It is designed to analyze the benchmark results generated in the `results/` folder and visualize the performance of different Sudoku solvers. The notebook performs the following tasks:
 - **Data Loading**: Reads benchmark CSV files (for 9x9, 16x16, and 25x25 puzzles) from the results/ directory using relative paths.
 
 - **Data Analysis**: Computes key performance metrics (runtime, memory usage, initialization time, etc.) for each solver.
