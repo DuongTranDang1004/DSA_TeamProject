@@ -181,7 +181,9 @@ The **`Analysis.ipynb`** notebook can be opened in Jupyter or JupyterLab. It is 
 1. Navigate to the notebooks/ directory in your terminal.
 
 2. Launch Jupyter Notebook by running:
-      jupyter notebook
+      ```bash
+jupyter notebook
+```
 
 3. Open the **`Analysis.ipynb`** file.
 
