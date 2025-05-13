@@ -42,9 +42,9 @@ DSA_TeamProject/
 |       ├── DLXSolverTest.java
 |       ├── SATSolverTest.java
 ├── results
-      ├── puzzle_result_extra.csv
-      ├── puzzle_result_extra_16x16.csv
-      ├── puzzle_result_extra_25x25.csv
+|      ├── puzzle_result_extra.csv
+|      ├── puzzle_result_extra_16x16.csv
+|      ├── puzzle_result_extra_25x25.csv
 ├── README.md 
 ├── LICENSE 
 └── pom.xml 
