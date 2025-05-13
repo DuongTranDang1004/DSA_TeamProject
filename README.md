@@ -172,12 +172,12 @@ The **`Analysis.ipynb`** notebook can be opened in Jupyter or JupyterLab. It is 
 
 - **Insights**: Provides visual insights into trade-offs between runtime efficiency, memory consumption, and initialization overhead across solvers.
 
-Requirements
+**Requirements**
 - Python 3
 - Jupyter Notebook or JupyterLab
 - Libraries: Pandas, Matplotlib, Seaborn
 
-How to Use
+**How to Use**
 1. Navigate to the notebooks/ directory in your terminal.
 
 2. Launch Jupyter Notebook by running:
