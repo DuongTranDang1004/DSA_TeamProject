@@ -12,14 +12,15 @@ import java.util.*;
  */
 
 public class DPLLSATSolver {
-    private final int N;
-    private final int maxRecursionDepth;
-    private final Map<Integer, Boolean> variableAssignments = new HashMap<>();
-    private int maxPropagationDepth = 0;
-    private int totalGuessCount = 0;
-    private boolean isRunningInUI = false;
-    private int stepCount = 0; 
-    private List<int[][]> steps = new ArrayList<>();  // List to store the steps for visualization
+    public final int N;
+    public final int maxRecursionDepth;
+    public final Map<Integer, Boolean> variableAssignments = new HashMap<>();
+    public int maxPropagationDepth = 0;
+    public int totalGuessCount = 0;
+    public boolean isRunningInUI = false;
+    public int stepCount = 0;
+    public List<int[][]> steps = new ArrayList<>();  // List to store the steps
+    // for visualization
 
     public DPLLSATSolver(int N, boolean isRunningInUI) {
         int root = (int) Math.sqrt(N);
@@ -45,7 +46,7 @@ public class DPLLSATSolver {
         return satisfiable ? decodeAssignmentsToBoard() : null;
     }
 
-    private boolean runDPLL(int[][] clauses, int currentDepth) {
+    public boolean runDPLL(int[][] clauses, int currentDepth) {
         if (currentDepth > maxRecursionDepth) return false;
         maxPropagationDepth = Math.max(maxPropagationDepth, currentDepth);
 
@@ -74,14 +75,14 @@ public class DPLLSATSolver {
         return false;
     }
 
-    private Integer findUnitClause(int[][] clauses) {
+    public Integer findUnitClause(int[][] clauses) {
         for (int[] clause : clauses) {
             if (clause.length == 1) return clause[0];
         }
         return null;
     }
 
-    private Integer chooseUnassignedLiteral(int[][] clauses) {
+    public Integer chooseUnassignedLiteral(int[][] clauses) {
         for (int[] clause : clauses) {
             for (int literal : clause) {
                 if (!variableAssignments.containsKey(Math.abs(literal))) {
@@ -92,16 +93,16 @@ public class DPLLSATSolver {
         return null;
     }
 
-    private void assignLiteral(int literal) {
+    public void assignLiteral(int literal) {
         variableAssignments.put(Math.abs(literal), literal > 0);
         if (isRunningInUI) storeStep(); 
     }
 
-    private void unassignLiteral(int literal) {
+    public void unassignLiteral(int literal) {
         variableAssignments.remove(Math.abs(literal));
     }
 
-    private int[][] simplifyClauses(int[][] clauses, int literal) {
+    public int[][] simplifyClauses(int[][] clauses, int literal) {
         List<int[]> simplified = new ArrayList<>(clauses.length);
         for (int[] clause : clauses) {
             boolean isSatisfied = false;
@@ -128,7 +129,7 @@ public class DPLLSATSolver {
         return simplified.toArray(new int[0][]);
     }
 
-    private int[][] decodeAssignmentsToBoard() {
+    public int[][] decodeAssignmentsToBoard() {
         int[][] resultBoard = new int[N][N];
         for (Map.Entry<Integer, Boolean> entry : variableAssignments.entrySet()) {
             if (!entry.getValue()) continue;

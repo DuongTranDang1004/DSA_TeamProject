@@ -3,16 +3,17 @@ package implementations;
 import java.util.*;
 
 public class DLXSolver {
-    private final int N;
-    private final int CONSTRAINTS;
+    public final int N;
+    public final int CONSTRAINTS;
 
-    private int[][] sudoku;
-    private int[][] initialPuzzle; // Store initial puzzle to preserve given numbers
-    private int propagationDepth = 0;
-    private int numberOfGuesses = 0;
-    private boolean isRunningInUI = false;
-    private int stepCount = 0;
-    private List<int[][]> steps = new ArrayList<>();
+    public int[][] sudoku;
+    public int[][] initialPuzzle; // Store initial puzzle to preserve given
+    // numbers
+    public int propagationDepth = 0;
+    public int numberOfGuesses = 0;
+    public boolean isRunningInUI = false;
+    public int stepCount = 0;
+    public List<int[][]> steps = new ArrayList<>();
 
     public DLXSolver(int N, boolean isRunningInUI) {
         if (Math.sqrt(N) != (int) Math.sqrt(N)) {
@@ -23,8 +24,11 @@ public class DLXSolver {
         this.isRunningInUI = isRunningInUI;
     }
 
-    class DLXNode {
-        DLXNode left, right, up, down;
+    public class DLXNode {
+        DLXNode left;
+        DLXNode right;
+        DLXNode up;
+        public DLXNode down;
         ColumnHeader column;
         int rowId;
 
@@ -47,9 +51,9 @@ public class DLXSolver {
         }
     }
 
-    class ColumnHeader extends DLXNode {
+    public class ColumnHeader extends DLXNode {
         int id;
-        int size;
+        public int size;
 
         public ColumnHeader(int id) {
             super();
@@ -58,9 +62,9 @@ public class DLXSolver {
         }
     }
 
-    class DLXHeader {
+    public class DLXHeader {
         ColumnHeader head;
-        ColumnHeader[] columns;
+        public ColumnHeader[] columns;
 
         public DLXHeader() {
             head = new ColumnHeader(-1);
@@ -149,7 +153,7 @@ public class DLXSolver {
         return solved;
     }
 
-    private boolean isValidBoard(int[][] board) {
+    public boolean isValidBoard(int[][] board) {
         if (board.length != N) return false;
         for (int[] row : board) {
             if (row.length != N) return false;
@@ -233,7 +237,7 @@ public class DLXSolver {
         return null;
     }
 
-    private ColumnHeader chooseColumnWithFewestNodes(ColumnHeader head) {
+    public ColumnHeader chooseColumnWithFewestNodes(ColumnHeader head) {
         ColumnHeader best = null;
         int minSize = Integer.MAX_VALUE;
         for (ColumnHeader col = (ColumnHeader) head.right; col != head; col = (ColumnHeader) col.right) {
@@ -245,7 +249,7 @@ public class DLXSolver {
         return best;
     }
 
-    private void updateSudokuFromSolution(List<DLXNode> solution) {
+    public void updateSudokuFromSolution(List<DLXNode> solution) {
         sudoku = copyBoard(initialPuzzle); // Start with initial puzzle
         for (DLXNode node : solution) {
             DLXNode cellNode = node;
@@ -314,7 +318,7 @@ public class DLXSolver {
         return steps;
     }
 
-    private int[][] copyBoard(int[][] board) {
+    public int[][] copyBoard(int[][] board) {
         int[][] copy = new int[N][N];
         for (int i = 0; i < N; i++) {
             System.arraycopy(board[i], 0, copy[i], 0, N);

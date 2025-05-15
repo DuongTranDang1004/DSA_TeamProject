@@ -12,18 +12,18 @@ import java.util.*;
  */
 
 public class ConstraintPropagationSolver {
-    private final int N;
-    private int[][] sudoku;
-    private Map<Integer, Set<Integer>> rowConstraints = new HashMap<>();
-    private Map<Integer, Set<Integer>> colConstraints = new HashMap<>();
-    private Map<Integer, Set<Integer>> boxConstraints = new HashMap<>();
-    private Map<String, Set<Integer>> domain = new HashMap<>();
+    public final int N;
+    public int[][] sudoku;
+    public Map<Integer, Set<Integer>> rowConstraints = new HashMap<>();
+    public Map<Integer, Set<Integer>> colConstraints = new HashMap<>();
+    public Map<Integer, Set<Integer>> boxConstraints = new HashMap<>();
+    public Map<String, Set<Integer>> domain = new HashMap<>();
 
-    private int propagationDepth = 0;
-    private int numberOfGuesses = 0;
-    private boolean isRunningInUI = false;
-    private int stepCount = 0; 
-    private List<int[][]> steps = new ArrayList<>(); 
+    public int propagationDepth = 0;
+    public int numberOfGuesses = 0;
+    public boolean isRunningInUI = false;
+    public int stepCount = 0;
+    public List<int[][]> steps = new ArrayList<>();
 
     public ConstraintPropagationSolver(int N, boolean isRunningInUI) {
         if (Math.sqrt(N) != (int) Math.sqrt(N)) {
