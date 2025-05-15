@@ -5,23 +5,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9b225721-4621-476d-972b-c24195025b9d" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Implementations/BackTrackingSolver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Implementations/BackTrackingSolver.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Implementations/ConstraintPropagationSolver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Implementations/ConstraintPropagationSolver.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Implementations/DLXSolver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Implementations/DLXSolver.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Implementations/DLXSudokuTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Implementations/DLXSudokuTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Implementations/DPLLSATSolver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Implementations/DPLLSATSolver.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Implementations/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Implementations/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Implementations/SudokuCnfEncoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Implementations/SudokuCnfEncoder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/NormalSudoku9x9.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Datasets/NormalSudoku9x9.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/NormalSudokuLargeGrids.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Datasets/NormalSudokuLargeGrids.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Datasets/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/VeryHardSudoku.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Datasets/VeryHardSudoku.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/normal_9x9.csv" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Datasets/normal_9x9.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/normal_large_grids.csv" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Datasets/normal_large_grids.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/very_hard.csv" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/Datasets/very_hard.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/results/puzzle_result_extra_9x9.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/datasets/sudoku_puzzles_test.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/puzzle_result_extra.csv" beforeDir="false" afterPath="$PROJECT_DIR$/results/puzzle_result_extra.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/implementations/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/implementations/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ui/SudokuSolverUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ui/SudokuSolverUI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/datasets/PuzzleBank.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/datasets/PuzzleBank.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/ui/SudokuSolverUI.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/ui/SudokuSolverUI.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/BackTrackingSolverTest.txt" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/BackTrackingSolverTest.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/ConstraintPropagationSolverTest.txt" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/ConstraintPropagationSolverTest.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/DLXSolverTest.txt" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/DLXSolverTest.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/SATSolverTest.txt" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/SATSolverTest.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-BackTrackingSolverTest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-BackTrackingSolverTest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-ConstraintPropagationSolverTest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-ConstraintPropagationSolverTest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-DLXSolverTest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-DLXSolverTest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-SATSolverTest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-SATSolverTest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/BackTrackingSolverTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/BackTrackingSolverTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/ConstraintPropagationSolverTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/ConstraintPropagationSolverTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/DLXSolverTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/DLXSolverTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/SATSolverTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/test-classes/SATSolverTest.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,9 +46,11 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Application.Main.executor": "Run",
+    "Application.implementations.Main.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/DSA_TeamProject/src/main/java/datasets",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -59,6 +64,10 @@
   }
 }]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\DSA_TeamProject\src\main\java\datasets" />
+      <recent name="D:\DSA_TeamProject\results" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\DSA_TeamProject\src\main\Implementations" />
       <recent name="D:\DSA_TeamProject\.idea" />
@@ -70,7 +79,7 @@
       <recent name="" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Application.implementations.Main">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="Main" />
       <module name="DSA_TeamProject" />
@@ -78,21 +87,22 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="JetRunConfigurationType">
+    <configuration name="implementations.Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="implementations.Main" />
       <module name="DSA_TeamProject" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <module name="DSA_TeamProject" />
-      <option name="filePath" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="implementations.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.implementations.Main" />
         <item itemvalue="Application.Main" />
       </list>
     </recent_temporary>
@@ -115,6 +125,7 @@
       <updated>1744892549802</updated>
       <workItem from="1744892550972" duration="244000" />
       <workItem from="1744892868476" duration="628000" />
+      <workItem from="1747318270603" duration="9157000" />
     </task>
     <servers />
   </component>

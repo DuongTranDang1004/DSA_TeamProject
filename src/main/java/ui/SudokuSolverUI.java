@@ -205,22 +205,20 @@ public class SudokuSolverUI extends Application {
     }
 
     private void generateRandomPuzzle() {
-        long startTime = System.nanoTime();
+        long initMemBefore = getUsedMemory();
+        startMemoryMonitor();
+        initStartTime = System.nanoTime();
+
         int[][] puzzle = PuzzleBank.getRandomPuzzle();
         originalPuzzle = copyPuzzle(puzzle);
         currentPuzzle = copyPuzzle(puzzle);
         previousStep = null;
         displayPuzzle(puzzle);
 
-        startMemoryMonitor();
-        initStartTime = System.nanoTime();
-
-        long initMemBefore = getUsedMemory();
-
         initEndTime = System.nanoTime();
         long initMemAfter = getUsedMemory();
-        initTime = (initEndTime - initStartTime) / 1_000;  
-        initMemCost = Math.max(initMemAfter - initMemBefore, 1);  
+        initTime = (initEndTime - initStartTime) / 1_000;
+        initMemCost = Math.max(initMemAfter - initMemBefore, 1);
 
         hintCount = countHints(puzzle);
 

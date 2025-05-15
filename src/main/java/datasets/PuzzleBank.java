@@ -19,7 +19,7 @@ import java.util.Random;
 
 public class PuzzleBank {
   public static int[][][] getPuzzles() {
-        String filePath = "src\\main\\java\\datasets\\sudoku_puzzles.csv";
+        String filePath = "src\\main\\java\\datasets\\sudoku_puzzles_test.csv";
         List<int[][]> puzzleList = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
