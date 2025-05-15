@@ -13,15 +13,15 @@ import java.util.*;
 
  public class BackTrackingSolver {
      private final int N;
-     private int[][] sudoku;
-     private Map<Integer, Set<Integer>> rowConstraints = new HashMap<>();
-     private Map<Integer, Set<Integer>> colConstraints = new HashMap<>();
-     private Map<Integer, Set<Integer>> boxConstraints = new HashMap<>();
+     public int[][] sudoku;
+     public Map<Integer, Set<Integer>> rowConstraints = new HashMap<>();
+     public Map<Integer, Set<Integer>> colConstraints = new HashMap<>();
+     public Map<Integer, Set<Integer>> boxConstraints = new HashMap<>();
  
      private int propagationDepth = 0;
      private int numberOfGuesses = 0;
      private long startTime;
-     private long timeoutMillis = 120_000;
+     public long timeoutMillis = 120_000;
      private int recursionCounter = 0;
      private boolean isRunningInUI = false;
      private int stepCount = 0;
@@ -85,7 +85,7 @@ import java.util.*;
  
      private boolean guessCell(int row, int col, int currentDepth) {
          recursionCounter++;
-         if (recursionCounter % 500 == 0) {
+         if (recursionCounter % 50 == 0) {
              if (System.currentTimeMillis() - startTime >= timeoutMillis) {
                  throw new RuntimeException("Timeout exceeded (" + (timeoutMillis / 1000) + " seconds)");
              }
@@ -133,7 +133,7 @@ import java.util.*;
          return false;
      }
  
-     private boolean isValidBoard(int[][] board) {
+     public boolean isValidBoard(int[][] board) {
          if (board == null || board.length != N) return false;
          for (int[] row : board) {
              if (row == null || row.length != N) return false;

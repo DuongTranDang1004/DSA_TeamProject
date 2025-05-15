@@ -13,7 +13,9 @@ import java.util.List;
  */
 
 public class SudokuCnfEncoder {
-    private final int N, blockH, blockW;
+    private final int N;
+    public final int blockH;
+    public final int blockW;
 
     public SudokuCnfEncoder(int N) {
         int s = (int) Math.sqrt(N);
@@ -25,7 +27,7 @@ public class SudokuCnfEncoder {
         this.blockW = s;
     }
 
-    private int var(int r, int c, int d) {
+    public int var(int r, int c, int d) {
         return (r - 1) * N * N + (c - 1) * N + d;
     }
 
@@ -40,7 +42,7 @@ public class SudokuCnfEncoder {
         return C.toArray(new int[0][]);
     }
 
-    private void addCell(List<int[]> C) {
+    public void addCell(List<int[]> C) {
         for (int r = 1; r <= N; r++) {
             for (int c = 1; c <= N; c++) {
                 int[] cl = new int[N];
@@ -50,7 +52,7 @@ public class SudokuCnfEncoder {
         }
     }
 
-    private void addUniqueness(List<int[]> C) {
+    public void addUniqueness(List<int[]> C) {
         for (int r = 1; r <= N; r++)
             for (int c = 1; c <= N; c++)
                 for (int d1 = 1; d1 <= N; d1++)
@@ -58,7 +60,7 @@ public class SudokuCnfEncoder {
                         C.add(new int[]{-var(r, c, d1), -var(r, c, d2)});
     }
 
-    private void addRow(List<int[]> C) {
+    public void addRow(List<int[]> C) {
         for (int r = 1; r <= N; r++)
             for (int d = 1; d <= N; d++) {
                 int[] cl = new int[N];
@@ -70,7 +72,7 @@ public class SudokuCnfEncoder {
             }
     }
 
-    private void addCol(List<int[]> C) {
+    public void addCol(List<int[]> C) {
         for (int c = 1; c <= N; c++)
             for (int d = 1; d <= N; d++) {
                 int[] cl = new int[N];
@@ -82,7 +84,7 @@ public class SudokuCnfEncoder {
             }
     }
 
-    private void addBox(List<int[]> C) {
+    public void addBox(List<int[]> C) {
         for (int br = 0; br < blockH; br++) {
             for (int bc = 0; bc < blockW; bc++) {
                 for (int d = 1; d <= N; d++) {
@@ -103,7 +105,7 @@ public class SudokuCnfEncoder {
         }
     }
 
-    private void addClues(List<int[]> C, int[][] board) {
+    public void addClues(List<int[]> C, int[][] board) {
         for (int r = 0; r < N; r++)
             for (int c = 0; c < N; c++) {
                 int d = board[r][c];

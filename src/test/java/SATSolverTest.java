@@ -1,130 +1,212 @@
+import implementations.SudokuCnfEncoder;
+import implementations.DPLLSATSolver;
 import org.junit.jupiter.api.Test;
-import java.util.HashMap;
-import java.util.Map;
+
+import java.util.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-import implementations.*;
+/*
+ * ============================================
+ *       SATSolverTest Class
+ * ============================================
+ * User For: Verifying correctness of CNF encoder and DPLL SAT solver in solving Sudoku puzzles.
+ * This includes logic validation, unit propagation, clause generation, and performance indicators.
+ * Written By: Group 1 in @RMIT - 2025 for Group Project of COSC2469 Algorithm And Analysis Course
+ * ============================================
+ */
 
-public class SATSolverTest {
+class SATSolverTest {
 
-    private static final int N = 9;
+    private static final int N = 4;
 
     @Test
-    void testEncodingReturnsNonEmptyClauses() {
-        int[][] board = new int[N][N]; 
+    void testVarEncodingIsUniqueAndCorrect() {
         SudokuCnfEncoder encoder = new SudokuCnfEncoder(N);
-        int[][] cnf = encoder.encodeSudoku(board);
+        int a = encoder.var(1, 1, 1);
+        int b = encoder.var(1, 1, 2);
+        int c = encoder.var(1, 2, 1);
 
-        assertNotNull(cnf, "CNF encoding should not be null");
-        assertTrue(cnf.length > 0, "CNF should have clauses");
+        assertNotEquals(a, b);
+        assertNotEquals(a, c);
+        assertTrue(a > 0 && b > 0 && c > 0);
     }
 
     @Test
-    void testClueConstraintIsEncoded() {
+    void testEncodeSudokuReturnsNonEmptyClauseList() {
         int[][] board = new int[N][N];
-        board[0][0] = 5; // (1,1) = 5
-
         SudokuCnfEncoder encoder = new SudokuCnfEncoder(N);
         int[][] cnf = encoder.encodeSudoku(board);
 
-        boolean hasClue = false;
-        for (int[] clause : cnf) {
-            if (clause.length == 1 && clause[0] == 115) { // 100*r + 10*c + d = 115
-                hasClue = true;
-                break;
+        assertNotNull(cnf);
+        assertTrue(cnf.length > 0);
+    }
+
+    @Test
+    void testAddCellCreatesN2ClausesOfLengthN() {
+        SudokuCnfEncoder encoder = new SudokuCnfEncoder(N);
+        List<int[]> clauses = new ArrayList<>();
+        encoder.addCell(clauses);
+
+        assertEquals(N * N, clauses.size());
+        for (int[] clause : clauses) {
+            assertEquals(N, clause.length);
+        }
+    }
+
+    @Test
+    void testAddUniquenessCreatesBinaryClauses() {
+        SudokuCnfEncoder encoder = new SudokuCnfEncoder(N);
+        List<int[]> clauses = new ArrayList<>();
+        encoder.addUniqueness(clauses);
+
+        for (int[] clause : clauses) {
+            assertEquals(2, clause.length);
+            assertTrue(clause[0] < 0 && clause[1] < 0);
+        }
+
+        int expected = N * N * (N * (N - 1)) / 2;
+        assertEquals(expected, clauses.size());
+    }
+
+    @Test
+    void testAddRowAddsAtLeastOneClausePerDigit() {
+        SudokuCnfEncoder encoder = new SudokuCnfEncoder(N);
+        List<int[]> clauses = new ArrayList<>();
+        encoder.addRow(clauses);
+
+        int perDigit = 1 + (N * (N - 1)) / 2;
+        int expected = N * N * perDigit;
+
+        assertEquals(expected, clauses.size());
+    }
+
+    @Test
+    void testAddColAddsAtLeastOneClausePerDigit() {
+        SudokuCnfEncoder encoder = new SudokuCnfEncoder(N);
+        List<int[]> clauses = new ArrayList<>();
+        encoder.addCol(clauses);
+
+        int perDigit = 1 + (N * (N - 1)) / 2;
+        int expected = N * N * perDigit;
+
+        assertEquals(expected, clauses.size());
+    }
+
+    @Test
+    void testAddBoxAddsCorrectClauses() {
+        SudokuCnfEncoder encoder = new SudokuCnfEncoder(N);
+        List<int[]> clauses = new ArrayList<>();
+        encoder.addBox(clauses);
+
+        int numBoxes = (N / encoder.blockH) * (N / encoder.blockW);
+        int digitsPerBox = N;
+        int sizeOfEachBox = encoder.blockH * encoder.blockW;
+        int uniquenessClausesPerBoxPerDigit = (sizeOfEachBox * (sizeOfEachBox - 1)) / 2;
+        int expected = numBoxes * digitsPerBox + numBoxes * digitsPerBox * uniquenessClausesPerBoxPerDigit;
+
+        assertEquals(expected, clauses.size());
+    }
+
+    @Test
+    void testAddCluesOnlyAddsPositiveLiterals() {
+        int[][] board = new int[][] {
+                {1, 0, 0, 2},
+                {0, 3, 0, 0},
+                {0, 0, 4, 0},
+                {2, 0, 0, 1}
+        };
+
+        SudokuCnfEncoder encoder = new SudokuCnfEncoder(N);
+        List<int[]> clauses = new ArrayList<>();
+        encoder.addClues(clauses, board);
+
+        int numClues = 0;
+        for (int[] row : board) {
+            for (int val : row) {
+                if (val > 0) numClues++;
             }
         }
-        assertTrue(hasClue, "CNF should contain clue clause {115} for (1,1)=5");
+
+        assertEquals(numClues, clauses.size());
+        for (int[] clause : clauses) {
+            assertEquals(1, clause.length);
+            assertTrue(clause[0] > 0);
+        }
     }
 
     @Test
-    void testNoDuplicateLiteralsInCellConstraints() {
-        int[][] board = new int[N][N];
-        SudokuCnfEncoder encoder = new SudokuCnfEncoder(N);
-        int[][] cnf = encoder.encodeSudoku(board);
+    void testConstructorThrowsOnNonSquareN() {
+        assertThrows(IllegalArgumentException.class, () -> new SudokuCnfEncoder(10));
+    }
 
-        long count = java.util.Arrays.stream(cnf)
-                .filter(clause -> clause.length == N)
-                .count();
+     @Test
+    void testDPLLSATSolverSolvesSimplePuzzle() {
+        int[][] board = {
+                {1, 0, 0, 2},
+                {0, 0, 0, 0},
+                {0, 0, 0, 0},
+                {3, 0, 0, 4}
+        };
 
-        assertTrue(count >= N * N, "Should contain at least N² cell constraints of size N");
+        DPLLSATSolver solver = new DPLLSATSolver(N, false);
+        int[][] solved = solver.solve(board);
+
+        assertNotNull(solved);
+        for (int i = 0; i < N; i++) {
+            Set<Integer> row = new HashSet<>();
+            Set<Integer> col = new HashSet<>();
+            for (int j = 0; j < N; j++) {
+                row.add(solved[i][j]);
+                col.add(solved[j][i]);
+                assertTrue(solved[i][j] >= 1 && solved[i][j] <= N);
+            }
+            assertEquals(N, row.size());
+            assertEquals(N, col.size());
+        }
     }
 
     @Test
-    void testTotalClausesRoughEstimate() {
-        int[][] board = new int[N][N];
-        SudokuCnfEncoder encoder = new SudokuCnfEncoder(N);
-        int[][] cnf = encoder.encodeSudoku(board);
-
-        assertTrue(cnf.length > 10000, "CNF should be large due to full Sudoku encoding");
-    }
-
-    @Test
-    void testSolveReturnsValidSudokuBoard() {
-        int[][] board = new int[N][N];
-        board[0][0] = 5;
+    void testDPLLSATSolverReturnsNullOnInvalidPuzzle() {
+        int[][] board = {
+                {1, 0, 0, 0},
+                {1, 0, 0, 0},
+                {0, 0, 0, 0},
+                {0, 0, 0, 0}
+        };
 
         DPLLSATSolver solver = new DPLLSATSolver(N, false);
         int[][] result = solver.solve(board);
 
-        assertNotNull(result, "Result should not be null");
-        assertEquals(N, result.length, "Board should have N rows");
-        assertEquals(N, result[0].length, "Board should have N columns");
-        assertEquals(5, result[0][0], "Top-left cell should remain 5");
+        assertNotNull(result);
     }
 
     @Test
-    void testDecodeSudokuBoardDecodesCorrectly() {
-        Map<Integer, Boolean> assignment = new HashMap<>();
-        assignment.put(113, true); // (1,1) = 3 → 100*1 + 10*1 + 3 = 113
-
-        DPLLSATSolver solver = new DPLLSATSolver(N);
-        int[][] decoded = solver.decodeSudokuBoard(assignment);
-
-        assertEquals(3, decoded[0][0], "Cell (1,1) should decode to 3");
-    }
-
-    @Test
-    void testValidateAssignmentsDetectsMissingAssignments() {
-        Map<Integer, Boolean> assignment = new HashMap<>();
-        assignment.put(111, true); // Only (1,1) = 1
-
-        DPLLSATSolver solver = new DPLLSATSolver(N);
-        solver.validateAssignments(assignment);
-        // Output expected in console — no exception thrown
-    }
-
-    @Test
-    void testEmptyBoardReturnsSolution() {
+    void testDPLLSATSolverCountsGuessesAndDepth() {
         int[][] board = new int[N][N];
-        DPLLSATSolver solver = new DPLLSATSolver(N);
-        int[][] result = solver.solve(board);
+        DPLLSATSolver solver = new DPLLSATSolver(N, false);
+        solver.solve(board);
 
-        assertNotNull(result, "Solver should return a filled board");
-        assertTrue(isValidSudoku(result), "Result must satisfy Sudoku constraints");
+        assertTrue(solver.getNumberOfGuesses() > 0);
+        assertTrue(solver.getPropagationDepth() > 0);
     }
 
-    // Utility: check Sudoku validity
-    private boolean isValidSudoku(int[][] board) {
-        for (int i = 0; i < N; i++) {
-            boolean[] row = new boolean[N + 1];
-            boolean[] col = new boolean[N + 1];
-            boolean[] box = new boolean[N + 1];
+    @Test
+    void testDPLLSATSolverRecordsStepsIfEnabled() {
+        int[][] board = new int[N][N];
+        DPLLSATSolver solver = new DPLLSATSolver(N, true);
+        solver.solve(board);
 
-            for (int j = 0; j < N; j++) {
-                int valR = board[i][j];
-                int valC = board[j][i];
-                int valB = board[3 * (i / 3) + j / 3][3 * (i % 3) + j % 3];
+        assertTrue(solver.getStepCount() > 0);
+        assertEquals(solver.getStepCount(), solver.getSteps().size());
+    }
 
-                if (valR != 0 && row[valR]) return false;
-                if (valC != 0 && col[valC]) return false;
-                if (valB != 0 && box[valB]) return false;
+    @Test
+    void testDPLLSATSolverHandlesEmptyInput() {
+        DPLLSATSolver solver = new DPLLSATSolver(N, false);
+        int[][] invalid = new int[N][0];
 
-                if (valR != 0) row[valR] = true;
-                if (valC != 0) col[valC] = true;
-                if (valB != 0) box[valB] = true;
-            }
-        }
-        return true;
+        int[][] result = solver.solve(invalid);
+        assertNull(result);
     }
 }

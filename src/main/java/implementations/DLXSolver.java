@@ -6,8 +6,8 @@ public class DLXSolver {
     private final int N;
     private final int CONSTRAINTS;
 
-    private int[][] sudoku;
-    private int[][] initialPuzzle; // Store initial puzzle to preserve given numbers
+    public int[][] sudoku;
+    public int[][] initialPuzzle; 
     private int propagationDepth = 0;
     private int numberOfGuesses = 0;
     private boolean isRunningInUI = false;
@@ -23,8 +23,11 @@ public class DLXSolver {
         this.isRunningInUI = isRunningInUI;
     }
 
-    class DLXNode {
-        DLXNode left, right, up, down;
+    public class DLXNode {
+        public DLXNode left;
+        public DLXNode right;
+        DLXNode up;
+        public DLXNode down;
         ColumnHeader column;
         int rowId;
 
@@ -47,9 +50,9 @@ public class DLXSolver {
         }
     }
 
-    class ColumnHeader extends DLXNode {
+    public class ColumnHeader extends DLXNode {
         int id;
-        int size;
+        public int size;
 
         public ColumnHeader(int id) {
             super();
@@ -58,9 +61,9 @@ public class DLXSolver {
         }
     }
 
-    class DLXHeader {
+    public class DLXHeader {
         ColumnHeader head;
-        ColumnHeader[] columns;
+        public ColumnHeader[] columns;
 
         public DLXHeader() {
             head = new ColumnHeader(-1);
@@ -121,10 +124,10 @@ public class DLXSolver {
             throw new IllegalArgumentException("Board must be " + N + "x" + N + " and contain values from 0 to " + N);
         }
 
-        this.initialPuzzle = copyBoard(board); // Store initial puzzle
-        this.sudoku = copyBoard(board); // Initialize sudoku with a copy
+        this.initialPuzzle = copyBoard(board); 
+        this.sudoku = copyBoard(board); 
         if (isRunningInUI) {
-            storeStep(); // Store initial state
+            storeStep(); 
         }
         List<DLXNode> preset = new ArrayList<>();
         DLXHeader dlx = buildDLXStructure(sudoku, preset);
@@ -136,7 +139,6 @@ public class DLXSolver {
             cover(node.column);
             solution.add(node);
         }
-        // Store state after all presets are processed
         if (isRunningInUI) {
             updateSudokuFromSolution(solution);
             storeStep();
@@ -246,7 +248,7 @@ public class DLXSolver {
     }
 
     private void updateSudokuFromSolution(List<DLXNode> solution) {
-        sudoku = copyBoard(initialPuzzle); // Start with initial puzzle
+        sudoku = copyBoard(initialPuzzle);  
         for (DLXNode node : solution) {
             DLXNode cellNode = node;
             DLXNode temp = node;
@@ -268,7 +270,7 @@ public class DLXSolver {
     }
 
     public int[][] decodeSolution(List<DLXNode> solution) {
-        int[][] board = copyBoard(initialPuzzle); // Start with initial puzzle
+        int[][] board = copyBoard(initialPuzzle);
         for (DLXNode node : solution) {
             DLXNode cellNode = node;
             DLXNode temp = node;
@@ -314,7 +316,7 @@ public class DLXSolver {
         return steps;
     }
 
-    private int[][] copyBoard(int[][] board) {
+    public int[][] copyBoard(int[][] board) {
         int[][] copy = new int[N][N];
         for (int i = 0; i < N; i++) {
             System.arraycopy(board[i], 0, copy[i], 0, N);

@@ -1,133 +1,158 @@
+import implementations.DLXSolver;
 import org.junit.jupiter.api.Test;
-import java.util.ArrayList;
-import java.util.List;
+
+import java.util.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-import implementations.*;
+/*
+ * ============================================
+ *       DLXSolverTest Class
+ * ============================================
+ * User For: Unit testing Knuth's Algorithm X and Dancing Links (DLX) based Sudoku solver. Includes node linking, covering/uncovering, and decoding.
+ * Written By: Group 1 in @RMIT - 2025 for Group Project of COSC2469 Algorithm And Analysis Course
+ * ============================================
+ */
 
 public class DLXSolverTest {
 
+    private static final int N = 9;
+
     @Test
-    void testBuildDLXStructureCreatesCorrectNumberOfColumns() {
-        int N = 9;
+    void testSolveReturnsCorrectSudoku() {
+        int[][] board = {
+                {5, 3, 0, 0, 7, 0, 0, 0, 0},
+                {6, 0, 0, 1, 9, 5, 0, 0, 0},
+                {0, 9, 8, 0, 0, 0, 0, 6, 0},
+                {8, 0, 0, 0, 6, 0, 0, 0, 3},
+                {4, 0, 0, 8, 0, 3, 0, 0, 1},
+                {7, 0, 0, 0, 2, 0, 0, 0, 6},
+                {0, 6, 0, 0, 0, 0, 2, 8, 0},
+                {0, 0, 0, 4, 1, 9, 0, 0, 5},
+                {0, 0, 0, 0, 8, 0, 0, 7, 9}
+        };
+
+        DLXSolver solver = new DLXSolver(N, false);
+        int[][] solved = solver.solve(board);
+
+        assertNotNull(solved);
+        for (int i = 0; i < N; i++) {
+            Set<Integer> row = new HashSet<>();
+            Set<Integer> col = new HashSet<>();
+            for (int j = 0; j < N; j++) {
+                row.add(solved[i][j]);
+                col.add(solved[j][i]);
+            }
+            assertEquals(N, row.size());
+            assertEquals(N, col.size());
+        }
+    }
+
+    @Test
+    void testInvalidBoardThrowsException() {
+        int[][] board = new int[8][8];
+        DLXSolver solver = new DLXSolver(N, false);
+        assertThrows(IllegalArgumentException.class, () -> solver.solve(board));
+    }
+
+    @Test
+    void testCopyBoardCreatesCorrectCopy() {
+        DLXSolver solver = new DLXSolver(N, false);
+        int[][] board = new int[N][N];
+        board[0][0] = 9;
+
+        int[][] copy = solver.copyBoard(board);
+        assertEquals(9, copy[0][0]);
+
+        board[0][0] = 1;
+        assertNotEquals(copy[0][0], board[0][0]);
+    }
+
+    @Test
+    void testStepRecordingWhenUIEnabled() {
+        int[][] board = new int[N][N];
+        board[0][0] = 5;
+
+        DLXSolver solver = new DLXSolver(N, true);
+        solver.solve(board);
+
+        assertTrue(solver.getStepCount() > 0);
+        assertEquals(solver.getStepCount(), solver.getSteps().size());
+    }
+
+    @Test
+    void testGuessCountAndPropagationDepth() {
         int[][] board = new int[N][N];
         DLXSolver solver = new DLXSolver(N, false);
-        List<DLXSolver.DLXNode> preset = new ArrayList<>();
-        DLXSolver.DLXHeader header = solver.buildDLXStructure(board, preset);
+        solver.solve(board);
 
-        assertNotNull(header);
-        assertEquals(4 * N * N, header.columns.length, "Should have 4 * N * N columns for exact cover");
+        assertTrue(solver.getNumberOfGuesses() >= 0);
+        assertTrue(solver.getPropagationDepth() > 0);
     }
 
-    @Test
-    void testDecodeSolutionReturnsValidBoard() {
-        int N = 9;
+   @Test
+    void testDecodeSolutionUsingDLXNodes() {
         int[][] board = new int[N][N];
-        DLXSolver solver = new DLXSolver(N);
-        List<DLXSolver.DLXNode> preset = new ArrayList<>();
-        DLXSolver.DLXHeader header = solver.buildDLXStructure(board, preset);
-
-        for (DLXSolver.DLXNode node : preset) {
-            for (DLXSolver.DLXNode j = node.right; j != node; j = j.right) {
-                solver.cover(j.column);
-            }
-            solver.cover(node.column);
-        }
-
-        List<DLXSolver.DLXNode> solution = new ArrayList<>(preset);
-        int[][] result = solver.search(header.head, solution);
-
-        assertNotNull(result, "Solution should not be null");
-        assertTrue(isValidSudoku(result), "Result should be a valid Sudoku solution");
-    }
-
-    @Test
-    void testSolvePrintsCorrectBoard() {
-        int[][] board = new int[9][9];
         board[0][0] = 5;
-        DLXSolver solver = new DLXSolver(9);
 
-        assertDoesNotThrow(() -> solver.solve(board));
+        DLXSolver solver = new DLXSolver(N, false);
+        solver.initialPuzzle = solver.copyBoard(board); 
+        List<DLXSolver.DLXNode> preset = new ArrayList<>();
+        solver.buildDLXStructure(board, preset);
+
+        int[][] decoded = solver.decodeSolution(preset);
+
+        assertEquals(5, decoded[0][0], "decodeSolution should reflect preset value");
+    }
+
+
+    @Test
+    void testInitialPuzzlePreserved() {
+        int[][] board = new int[N][N];
+        board[4][4] = 7;
+
+        DLXSolver solver = new DLXSolver(N, false);
+        solver.solve(board);
+
+        assertEquals(7, solver.initialPuzzle[4][4]);
+        assertEquals(7, solver.sudoku[4][4]);
     }
 
     @Test
-    void testCoverRemovesColumnFromListAndDecrementsSize() {
-        int N = 9;
-        DLXSolver solver = new DLXSolver(N);
-        int[][] board = new int[N][N];
+    void testCoverAndUncoverRemoveAndRestoreRows() {
+        DLXSolver solver = new DLXSolver(4, false);
+        int[][] board = new int[4][4];
         List<DLXSolver.DLXNode> preset = new ArrayList<>();
-        DLXSolver.DLXHeader dlx = solver.buildDLXStructure(board, preset);
+        DLXSolver.DLXHeader header = solver.buildDLXStructure(board, preset);
 
-        DLXSolver.ColumnHeader col = dlx.columns[0];
+        DLXSolver.ColumnHeader col = header.columns[0];
         int originalSize = col.size;
-        DLXSolver.DLXNode rightOfCol = col.right;
-        DLXSolver.DLXNode leftOfCol = col.left;
 
-        solver.cover(col);
+        assertTrue(originalSize > 0);
+        assertNotSame(col.down, col);
 
-        assertSame(rightOfCol.left, leftOfCol, "Column should be detached from right list");
-        assertSame(leftOfCol.right, rightOfCol, "Column should be detached from left list");
-
-        // Column size stays the same
-        assertEquals(originalSize, col.size, "Column size remains intact after covering itself");
-
-        DLXSolver.DLXNode down = col.down;
-        while (down != col) {
-            assertNotSame(down.up.down, down, "Node should be detached from vertical list");
-            down = down.down;
+        List<DLXSolver.DLXNode> originalDownNodes = new ArrayList<>();
+        for (DLXSolver.DLXNode node = col.down; node != col; node = node.down) {
+            originalDownNodes.add(node);
         }
-    }
-
-    @Test
-    void testUncoverRestoresColumnLinks() {
-        int N = 9;
-        DLXSolver solver = new DLXSolver(N);
-        int[][] board = new int[N][N];
-        List<DLXSolver.DLXNode> preset = new ArrayList<>();
-        DLXSolver.DLXHeader dlx = solver.buildDLXStructure(board, preset);
-
-        DLXSolver.ColumnHeader col = dlx.columns[0];
-        DLXSolver.DLXNode rightOfCol = col.right;
-        DLXSolver.DLXNode leftOfCol = col.left;
 
         solver.cover(col);
+
+        assertNotSame(col.right.left, col);
+        assertNotSame(col.left.right, col);
+        assertEquals(originalSize, col.size);
+
         solver.uncover(col);
 
-        assertSame(col.left, leftOfCol, "Left link restored");
-        assertSame(col.right, rightOfCol, "Right link restored");
-        assertSame(leftOfCol.right, col, "Left neighbor points back to column");
-        assertSame(rightOfCol.left, col, "Right neighbor points back to column");
+        assertSame(col.right.left, col);
+        assertSame(col.left.right, col);
 
-        DLXSolver.DLXNode down = col.down;
-        while (down != col) {
-            assertSame(down.up.down, down, "Vertical link restored");
-            assertSame(down.down.up, down, "Vertical link restored");
-            down = down.down;
+        DLXSolver.DLXNode restored = col.down;
+        for (DLXSolver.DLXNode expected : originalDownNodes) {
+            assertSame(expected, restored);
+            restored = restored.down;
         }
-    }
 
-    // ✅ Utility method to check 9x9 Sudoku validity
-    private boolean isValidSudoku(int[][] board) {
-        int N = 9;
-        for (int i = 0; i < N; i++) {
-            boolean[] row = new boolean[N + 1];
-            boolean[] col = new boolean[N + 1];
-            boolean[] box = new boolean[N + 1];
-
-            for (int j = 0; j < N; j++) {
-                int valRow = board[i][j];
-                int valCol = board[j][i];
-                int valBox = board[3 * (i / 3) + j / 3][3 * (i % 3) + j % 3];
-
-                if (valRow != 0 && row[valRow]) return false;
-                if (valCol != 0 && col[valCol]) return false;
-                if (valBox != 0 && box[valBox]) return false;
-
-                if (valRow != 0) row[valRow] = true;
-                if (valCol != 0) col[valCol] = true;
-                if (valBox != 0) box[valBox] = true;
-            }
-        }
-        return true;
+        assertSame(restored, col);
     }
 }

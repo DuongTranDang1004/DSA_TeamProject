@@ -13,11 +13,11 @@ import java.util.*;
 
 public class ConstraintPropagationSolver {
     private final int N;
-    private int[][] sudoku;
-    private Map<Integer, Set<Integer>> rowConstraints = new HashMap<>();
-    private Map<Integer, Set<Integer>> colConstraints = new HashMap<>();
-    private Map<Integer, Set<Integer>> boxConstraints = new HashMap<>();
-    private Map<String, Set<Integer>> domain = new HashMap<>();
+    public int[][] sudoku;
+    public Map<Integer, Set<Integer>> rowConstraints = new HashMap<>();
+    public Map<Integer, Set<Integer>> colConstraints = new HashMap<>();
+    public Map<Integer, Set<Integer>> boxConstraints = new HashMap<>();
+    public Map<String, Set<Integer>> domain = new HashMap<>();
 
     private int propagationDepth = 0;
     private int numberOfGuesses = 0;
