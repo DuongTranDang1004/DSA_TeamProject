@@ -43,6 +43,7 @@ DSA_TeamProject/
 |       ├── SATSolverTest.java
 ├── results
 |      ├── puzzle_result_extra.csv
+|      ├── puzzle_result_extra_9x9.csv
 |      ├── puzzle_result_extra_16x16.csv
 |      ├── puzzle_result_extra_25x25.csv
 ├── README.md 
@@ -76,6 +77,7 @@ DSA_TeamProject/
 
 - **results/**: Contains CSV files documenting the experimental results for the different Sudoku puzzle sizes (9x9, 16x16, and 25x25).
     - **puzzle_result_extra.csv**
+    - **puzzle_result_extra_9x9.csv**
     - **puzzle_result_extra_16x16.csv**
     - **puzzle_result_extra_25x25.csv**
 
