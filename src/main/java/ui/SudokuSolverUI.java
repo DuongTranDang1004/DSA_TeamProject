@@ -54,9 +54,14 @@ public class SudokuSolverUI extends Application {
     private boolean monitoring = false;
 
     public long getUsedMemory() {
-        MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
-        return memoryBean.getHeapMemoryUsage().getUsed();
+        try {
+            MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
+            return memoryBean.getHeapMemoryUsage().getUsed();
+        } catch (Throwable e) {
+            return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        }
     }
+
 
     public void startMemoryMonitor() {
         monitoring = true;
@@ -413,35 +418,45 @@ public class SudokuSolverUI extends Application {
 
     private void solveAndDisplayPuzzle(String solverType) {
         int[][] solvedPuzzle = copyPuzzle(currentPuzzle);
-        long peakMemory = 0; 
+        long peakMemory = 0;
 
-        if (solverType.equals("Backtracking")) {
-            BackTrackingSolver solver = new BackTrackingSolver(solvedPuzzle.length, false);
-            solver.setTimeoutMillis(120_000);
-            solvedPuzzle = solver.solve(solvedPuzzle);
-        } else if (solverType.equals("Constraint Propagation")) {
-            ConstraintPropagationSolver solver = new ConstraintPropagationSolver(solvedPuzzle.length, false);
-            solvedPuzzle = solver.solve(solvedPuzzle);
-        } else if (solverType.equals("DPLL-SAT")) {
-            DPLLSATSolver solver = new DPLLSATSolver(solvedPuzzle.length, false);
-            solvedPuzzle = solver.solve(solvedPuzzle);
-        } else if (solverType.equals("DLX")) {
-            DLXSolver solver = new DLXSolver(solvedPuzzle.length, false);
-            solvedPuzzle = solver.solve(solvedPuzzle);
-        }
+        try {
+            if (solverType.equals("Backtracking")) {
+                BackTrackingSolver solver = new BackTrackingSolver(solvedPuzzle.length, false);
+                solver.setTimeoutMillis(120_000);
+                solvedPuzzle = solver.solve(solvedPuzzle);
+            } else if (solverType.equals("Constraint Propagation")) {
+                ConstraintPropagationSolver solver = new ConstraintPropagationSolver(solvedPuzzle.length, false);
+                solvedPuzzle = solver.solve(solvedPuzzle);
+            } else if (solverType.equals("DPLL-SAT")) {
+                DPLLSATSolver solver = new DPLLSATSolver(solvedPuzzle.length, false);
+                solvedPuzzle = solver.solve(solvedPuzzle);
+            } else if (solverType.equals("DLX")) {
+                DLXSolver solver = new DLXSolver(solvedPuzzle.length, false);
+                solvedPuzzle = solver.solve(solvedPuzzle);
+            }
 
-        peakMemory = getPeakMemoryUsage();
-
-        if (solvedPuzzle != null) {
-            currentPuzzle = solvedPuzzle;
-            previousStep = null;
-            displayPuzzle(currentPuzzle);
-            statusLabel.setText("Solved with " + solverType + " (Memory: " + peakMemory + " bytes)" +
-                                "| Hint Count: "+ hintCount + " hints| Solving time: " + solvingTime + "μs | Init Time: " + initTime + "μs");
-        } else {
-            statusLabel.setText("Failed to solve with " + solverType);
+            peakMemory = getPeakMemoryUsage();
+            int[][] finalSolved = solvedPuzzle;
+            long finalPeakMemory = peakMemory;
+            Platform.runLater(() -> {
+                if (finalSolved != null) {
+                    currentPuzzle = finalSolved;
+                    previousStep = null;
+                    displayPuzzle(currentPuzzle);
+                    statusLabel.setText("Solved with " + solverType +
+                            " (Memory: " + finalPeakMemory + " bytes)" +
+                            " | Hint Count: " + hintCount +
+                            " hints | Solving time: " + solvingTime + "μs | Init Time: " + initTime + "μs");
+                } else {
+                    statusLabel.setText("Failed to solve with " + solverType);
+                }
+            });
+        } catch (Exception e) {
+            Platform.runLater(() -> showErrorPopup("An error occurred during solving: " + e.getMessage()));
         }
     }
+
 
     private void visualizeSteps(String solverType) {
         int[][] puzzleToSolve = copyPuzzle(currentPuzzle);

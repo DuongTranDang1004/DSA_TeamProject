@@ -5,26 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9b225721-4621-476d-972b-c24195025b9d" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/implementations/DPLLSATSolver.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/implementations/DPLLSATSolver.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/implementations/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/implementations/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ui/SudokuSolverUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ui/SudokuSolverUI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/implementations/DPLLSATSolver.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/implementations/DPLLSATSolver.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/implementations/Main$PuzzleInfo.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/implementations/Main$PuzzleInfo.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/implementations/Main$SolveResult.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/implementations/Main$SolveResult.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/implementations/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/implementations/Main.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/ui/SudokuSolverUI.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/ui/SudokuSolverUI.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/BackTrackingSolverTest.txt" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/BackTrackingSolverTest.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/ConstraintPropagationSolverTest.txt" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/ConstraintPropagationSolverTest.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/SATSolverTest.txt" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/SATSolverTest.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-BackTrackingSolverTest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-BackTrackingSolverTest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-ConstraintPropagationSolverTest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-ConstraintPropagationSolverTest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-DLXSolverTest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-DLXSolverTest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/surefire-reports/TEST-SATSolverTest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/target/surefire-reports/TEST-SATSolverTest.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -129,7 +111,8 @@
       <workItem from="1747366630369" duration="653000" />
       <workItem from="1747367502321" duration="1339000" />
       <workItem from="1747372298291" duration="632000" />
-      <workItem from="1747372961141" duration="298000" />
+      <workItem from="1747372961141" duration="712000" />
+      <workItem from="1747373765461" duration="1999000" />
     </task>
     <servers />
   </component>
