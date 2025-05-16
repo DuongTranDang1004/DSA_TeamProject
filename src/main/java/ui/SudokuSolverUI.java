@@ -1,6 +1,8 @@
 package ui;
 
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.Scene;
@@ -371,22 +373,43 @@ public class SudokuSolverUI extends Application {
 
     private void solvePuzzle(String solverType) {
         if (currentPuzzle == null) {
-            statusLabel.setText("Error: No puzzle loaded");
+            showErrorPopup("No puzzle loaded");
             return;
         }
 
         statusLabel.setText("Solving with " + solverType + "...");
 
-        long startSolvingTime = System.nanoTime();
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() {
+                long startSolvingTime = System.nanoTime();
+                try {
+                    if (visualizeSolvingSteps) {
+                        visualizeSteps(solverType);
+                    } else {
+                        solveAndDisplayPuzzle(solverType);
+                    }
+                    solvingTime = (System.nanoTime() - startSolvingTime) / 1_000;
+                } catch (Exception ex) {
+                    Platform.runLater(() -> showErrorPopup("An error occurred:\n" + ex.getMessage()));
+                }
+                return null;
+            }
+        };
 
-        if (visualizeSolvingSteps) {
-            visualizeSteps(solverType);
-        } else {
-            solveAndDisplayPuzzle(solverType);
-        }
-
-        solvingTime = (System.nanoTime() - startSolvingTime) / 1_000;  
+        Thread solvingThread = new Thread(task);
+        solvingThread.setDaemon(true);
+        solvingThread.start();
     }
+
+    private void showErrorPopup(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Solver Error");
+        alert.setHeaderText("Oops! Something went wrong.");
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
 
     private void solveAndDisplayPuzzle(String solverType) {
         int[][] solvedPuzzle = copyPuzzle(currentPuzzle);

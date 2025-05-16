@@ -23,6 +23,7 @@ public class Main {
     private static volatile boolean monitoring = false;
 
     public static long getUsedMemory() {
+        
         MemoryMXBean memoryBean = ManagementFactory.getMemoryMXBean();
         return memoryBean.getHeapMemoryUsage().getUsed();
     }
@@ -196,7 +197,6 @@ public class Main {
 
                 stopMemoryMonitor();
                 recordedPeakMemory = Math.max(recordedPeakMemory, peakMemoryUsage);
-
                 if (isValidSolution(resultBoard)) {
                     solved = true;
                     if (attempt == 0) firstSolvedBoard = deepCopy(resultBoard);
