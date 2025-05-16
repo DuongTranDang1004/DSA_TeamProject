@@ -190,26 +190,4 @@ The **`Analysis.ipynb`** notebook can be opened in Jupyter or JupyterLab. It is 
 4. Run the cells sequentially to load the CSV data and generate visualizations.
 
 ## Video Demonstration
-A video demonstrating the functionality of the project is available on YouTube: [Link].
-
-Implement the backtracking + constrain propagation : Hau 
-Impement the backingtracking + KnuthX and Dacing Link: Trung 
-Implement the backtracking + SAT solver : Trung 
-Implementation Requirements 
-You must create a class RMIT_Sudoku_Solver with the following method: 
-public class RMIT_Sudoku_Solver { 
- public int[][] solve(int[][] puzzle) { 
- // Implement your solution here 
- } 
-}
-The method solve(int[][] puzzle): 
-• Accepts a 2D integer array (9x9) representing the Sudoku puzzle. 
-• Each cell contains an integer from 0 to 9: 
-o 1-9 => Pre-filled numbers (must remain unchanged in the solution) 
-o 0 => Empty cells that your program must solve. 
-• Returns a 9x9 2D array containing the solved Sudoku puzzle. 
-• Each cell in the returned array must contain a value from 1 to 9. 
-If your program cannot find a solution within 2 minutes (on any computer), it must raise an 
-exception. 
-You may create additional classes and methods needed to organize your code eectively. 
-Each method require unit test.
+A video demonstrating the functionality of the project is available on [OneDrive](https://rmiteduau-my.sharepoint.com/:v:/g/personal/s3974820_rmit_edu_vn/EXKQZg1V3v9KiKSW23Ch5doB9lcR686WZZxYeBzQbr14QA?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D&e=fi0B5h)
