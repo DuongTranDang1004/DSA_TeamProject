@@ -2,6 +2,15 @@ package implementations;
 
 import java.util.*;
 
+/*
+ * ============================================
+ *           DLXSolver Class
+ * ============================================
+ * Used For: Solving Sudoku using Algorithm X with Dancing Links (DLX).
+ * Written By: Group 1 in @RMIT - 2025 for Group Project of COSC2469 Algorithm And Analysis Course
+ * ============================================
+ */
+
 public class DLXSolver {
     private final int N;
     private final int CONSTRAINTS;

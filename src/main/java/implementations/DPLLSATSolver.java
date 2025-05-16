@@ -12,14 +12,15 @@ import java.util.*;
  */
 
 public class DPLLSATSolver {
-    private final int N;
-    private final int maxRecursionDepth;
-    private final Map<Integer, Boolean> variableAssignments = new HashMap<>();
-    private int maxPropagationDepth = 0;
-    private int totalGuessCount = 0;
-    private boolean isRunningInUI = false;
-    private int stepCount = 0;
-    private List<int[][]> steps = new ArrayList<>();
+    public final int N;
+    public final int maxRecursionDepth;
+    public final Map<Integer, Boolean> variableAssignments = new HashMap<>();
+    public int maxPropagationDepth = 0;
+    public int totalGuessCount = 0;
+    public boolean isRunningInUI = false;
+    public int stepCount = 0;
+    public List<int[][]> steps = new ArrayList<>();  // List to store the steps
+    // for visualization
 
     public DPLLSATSolver(int N, boolean isRunningInUI) {
         int root = (int) Math.sqrt(N);
@@ -35,26 +36,26 @@ public class DPLLSATSolver {
         if (board.length != N || board[0].length != N) return null;
 
         SudokuCnfEncoder encoder = new SudokuCnfEncoder(N);
-        List<int[]> clauseList = new ArrayList<>(Arrays.asList(encoder.encodeSudoku(board)));
+        int[][] cnfClauses = encoder.encodeSudoku(board);
+
         variableAssignments.clear();
         maxPropagationDepth = 0;
         totalGuessCount = 0;
 
-        boolean satisfiable = runDPLL(clauseList, 0);
+        boolean satisfiable = runDPLL(cnfClauses, 0);
         return satisfiable ? decodeAssignmentsToBoard() : null;
     }
 
-    private boolean runDPLL(List<int[]> clauses, int currentDepth) {
+    public boolean runDPLL(int[][] clauses, int currentDepth) {
         if (currentDepth > maxRecursionDepth) return false;
         maxPropagationDepth = Math.max(maxPropagationDepth, currentDepth);
 
-        if (clauses.isEmpty()) return true;
+        if (clauses.length == 0) return true;
 
         Integer unitLiteral = findUnitClause(clauses);
         if (unitLiteral != null) {
             assignLiteral(unitLiteral);
-            List<int[]> simplified = simplifyClauses(clauses, unitLiteral);
-            boolean result = runDPLL(simplified, currentDepth + 1);
+            boolean result = runDPLL(simplifyClauses(clauses, unitLiteral), currentDepth + 1);
             if (!result) unassignLiteral(unitLiteral);
             return result;
         }
@@ -64,26 +65,24 @@ public class DPLLSATSolver {
 
         totalGuessCount++;
         assignLiteral(chosenLiteral);
-        List<int[]> simplifiedPos = simplifyClauses(clauses, chosenLiteral);
-        if (runDPLL(simplifiedPos, currentDepth + 1)) return true;
+        if (runDPLL(simplifyClauses(clauses, chosenLiteral), currentDepth + 1)) return true;
         unassignLiteral(chosenLiteral);
 
         assignLiteral(-chosenLiteral);
-        List<int[]> simplifiedNeg = simplifyClauses(clauses, -chosenLiteral);
-        if (runDPLL(simplifiedNeg, currentDepth + 1)) return true;
+        if (runDPLL(simplifyClauses(clauses, -chosenLiteral), currentDepth + 1)) return true;
         unassignLiteral(chosenLiteral);
 
         return false;
     }
 
-    private Integer findUnitClause(List<int[]> clauses) {
+    public Integer findUnitClause(int[][] clauses) {
         for (int[] clause : clauses) {
             if (clause.length == 1) return clause[0];
         }
         return null;
     }
 
-    private Integer chooseUnassignedLiteral(List<int[]> clauses) {
+    public Integer chooseUnassignedLiteral(int[][] clauses) {
         for (int[] clause : clauses) {
             for (int literal : clause) {
                 if (!variableAssignments.containsKey(Math.abs(literal))) {
@@ -94,17 +93,17 @@ public class DPLLSATSolver {
         return null;
     }
 
-    private void assignLiteral(int literal) {
+    public void assignLiteral(int literal) {
         variableAssignments.put(Math.abs(literal), literal > 0);
-        if (isRunningInUI) storeStep();
+        if (isRunningInUI) storeStep(); 
     }
 
-    private void unassignLiteral(int literal) {
+    public void unassignLiteral(int literal) {
         variableAssignments.remove(Math.abs(literal));
     }
 
-    private List<int[]> simplifyClauses(List<int[]> clauses, int literal) {
-        List<int[]> simplified = new ArrayList<>();
+    public int[][] simplifyClauses(int[][] clauses, int literal) {
+        List<int[]> simplified = new ArrayList<>(clauses.length);
         for (int[] clause : clauses) {
             boolean isSatisfied = false;
             for (int l : clause) {
@@ -115,13 +114,22 @@ public class DPLLSATSolver {
             }
             if (isSatisfied) continue;
 
-            int[] newClause = Arrays.stream(clause).filter(l -> l != -literal).toArray();
+            int count = 0;
+            for (int l : clause) {
+                if (l != -literal) count++;
+            }
+
+            int[] newClause = new int[count];
+            int index = 0;
+            for (int l : clause) {
+                if (l != -literal) newClause[index++] = l;
+            }
             simplified.add(newClause);
         }
-        return simplified;
+        return simplified.toArray(new int[0][]);
     }
 
-    private int[][] decodeAssignmentsToBoard() {
+    public int[][] decodeAssignmentsToBoard() {
         int[][] resultBoard = new int[N][N];
         for (Map.Entry<Integer, Boolean> entry : variableAssignments.entrySet()) {
             if (!entry.getValue()) continue;
@@ -142,25 +150,26 @@ public class DPLLSATSolver {
     public int getNumberOfGuesses() {
         return totalGuessCount;
     }
-
+    
     public void storeStep() {
         int[][] step = new int[N][N];
         for (Map.Entry<Integer, Boolean> entry : variableAssignments.entrySet()) {
-            int var = entry.getKey();
-            int value = entry.getValue() ? 1 : 0;
-            int row = (var / N) % N;
-            int col = var % N;
+            int var = entry.getKey(); 
+            int value = entry.getValue() ? 1 : 0; 
+            int row = (var / N) % N;  
+            int col = var % N;      
             step[row][col] = value + 1;
         }
-        steps.add(step);
+        steps.add(step);  
         stepCount++;
     }
+    
 
     public int getStepCount() {
-        return stepCount;
+        return stepCount; 
     }
 
     public List<int[][]> getSteps() {
-        return steps;
+        return steps;  
     }
 }
