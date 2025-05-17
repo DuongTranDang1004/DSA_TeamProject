@@ -19,8 +19,7 @@ public class DPLLSATSolver {
     public int totalGuessCount = 0;
     public boolean isRunningInUI = false;
     public int stepCount = 0;
-    public List<int[][]> steps = new ArrayList<>();  // List to store the steps
-    // for visualization
+    public List<int[][]> steps = new ArrayList<>();  
 
     public DPLLSATSolver(int N, boolean isRunningInUI) {
         int root = (int) Math.sqrt(N);
