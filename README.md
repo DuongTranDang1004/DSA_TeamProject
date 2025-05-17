@@ -114,6 +114,26 @@ This will execute the **`Main.java`** class, solving all Sudoku puzzles and savi
 
 ## Alternative: Manual Compilation and Execution (If Maven Is Not Available)
 If you are unable to run Maven, you can compile and run the project manually from the command line. Follow these steps:
+### 1. Compile the Source Files
+From the directory that contains the datasets and implementations folders (for example, if you’re in `src/main/java`), run:
+
+```bash
+javac -encoding UTF-8 -d bin datasets/PuzzleBank.java implementations/*.java
+```
+
+This command tells the Java compiler (`javac`) to:
+- Use UTF‑8 encoding.
+- Place the resulting class files in a folder named `bin` (which will mirror the package structure).
+- Compile the files in `datasets` (like `PuzzleBank.java`) and all Java files in `implementations` (including `Main.java`, etc.).
+### 2. Run the Main Class
+If your `Main.java` file starts with a package declaration (for example, `package implementations;`), you need to run it by specifying the fully qualified class name. Navigate to the folder where the `bin` directory is located and run:
+
+```bash
+java -cp bin implementations.Main
+```
+This command tells the Java Virtual Machine (`java`) to:
+- Use `bin` as the classpath (where it will look for your compiled classes).
+- Start the program by invoking the `main` method in the `implementations.Main` class.
 
 ## Dependencies
 ### Maven Dependencies
