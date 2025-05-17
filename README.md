@@ -112,6 +112,9 @@ This will execute the **`Main.java`** class, solving all Sudoku puzzles and savi
  + Peak memory usage during the solving process
  + Initialization time and memory usage
 
+## Alternative: Manual Compilation and Execution (If Maven Is Not Available)
+If you are unable to run Maven, you can compile and run the project manually from the command line. Follow these steps:
+
 ## Dependencies
 ### Maven Dependencies
  + JavaFX for building the user interface (javafx-controls, javafx-fxml)
